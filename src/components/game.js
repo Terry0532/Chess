@@ -37,15 +37,20 @@ export default class Game extends React.Component {
         }
 
         else if (this.state.sourceSelection > -1) {
-            squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "none" };
+            // delete squares[this.state.sourceSelection].style.backgroundColor;
+            squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
+            
             if (squares[i] && squares[i].player === this.state.player) {
+                squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
+                // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "RGB(0,0,0)" };
+                console.log(this.state.sourceSelection)
+                console.log("line 45")
                 this.setState({
                     status: "Wrong selection. Choose valid source and destination again.",
                     sourceSelection: -1,
                 });
             }
             else {
-
                 const squares = this.state.squares.slice();
                 const whiteFallenSoldiers = this.state.whiteFallenSoldiers.slice();
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
@@ -80,6 +85,8 @@ export default class Game extends React.Component {
                     });
                 }
                 else {
+                    console.log("line 84")
+                    squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "none" };
                     this.setState({
                         status: "Wrong selection. Choose valid source and destination again.",
                         sourceSelection: -1,
