@@ -25,7 +25,8 @@ export default class Game extends React.Component {
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
                 this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
-                squares[i] ? delete squares[i].style.backgroundColor : null;
+                // squares[i] ? delete squares[i].style.backgroundColor : null;
+                squares[i] ? squares[i].style = { ...squares[i].style, backgroundColor: "" } : null;
             }
             else {
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
@@ -37,14 +38,10 @@ export default class Game extends React.Component {
         }
 
         else if (this.state.sourceSelection > -1) {
-            // delete squares[this.state.sourceSelection].style.backgroundColor;
             squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
-            
+
             if (squares[i] && squares[i].player === this.state.player) {
                 squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
-                // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "RGB(0,0,0)" };
-                console.log(this.state.sourceSelection)
-                console.log("line 45")
                 this.setState({
                     status: "Wrong selection. Choose valid source and destination again.",
                     sourceSelection: -1,
@@ -85,8 +82,7 @@ export default class Game extends React.Component {
                     });
                 }
                 else {
-                    console.log("line 84")
-                    squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "none" };
+                    squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
                     this.setState({
                         status: "Wrong selection. Choose valid source and destination again.",
                         sourceSelection: -1,
