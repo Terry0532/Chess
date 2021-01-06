@@ -37,7 +37,7 @@ export default class Game extends React.Component {
         }
 
         else if (this.state.sourceSelection > -1) {
-            delete squares[this.state.sourceSelection].style.backgroundColor;
+            squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "none" };
             if (squares[i] && squares[i].player === this.state.player) {
                 this.setState({
                     status: "Wrong selection. Choose valid source and destination again.",
