@@ -34,5 +34,5 @@ export default class Board extends React.Component {
 }
 
 function isEven(num) {
-    return num % 2 == 0;
+    return num % 2 === 0;
 }
