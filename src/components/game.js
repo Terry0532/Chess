@@ -66,9 +66,6 @@ export default class Game extends React.Component {
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
 
                 if (squares[this.state.sourceSelection].name === "Pawn") {
-                    this.setState({
-                        lastTurnPawnPosition: i
-                    })
 
                     let enpassant;
                     if (this.state.sourceSelection - 1 === this.state.lastTurnPawnPosition || this.state.sourceSelection + 1 === this.state.lastTurnPawnPosition) {
@@ -83,43 +80,84 @@ export default class Game extends React.Component {
                     const isMoveLegal = this.isMoveLegal(srcToDestPath);
 
                     if (isMovePossible && isMoveLegal) {
-                        if (squares[i] !== null) {
-                            if (squares[i].player === 1) {
-                                whiteFallenSoldiers.push(squares[i]);
+                        if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
+                            console.log("enpassant")
+                            if (squares[this.state.lastTurnPawnPosition].player === 1) {
+                                whiteFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
                             }
                             else {
-                                blackFallenSoldiers.push(squares[i]);
+                                blackFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
                             }
-                        }
-                        // console.log("whiteFallenSoldiers", whiteFallenSoldiers);
-                        // console.log("blackFallenSoldiers", blackFallenSoldiers);
-
-                        let lastTurn = this.state.turn !== 'white' ? 'black' : 'white';
-                        let firstMove;
-                        if (squares[this.state.sourceSelection].name === "Pawn") {
-                            if (squares[this.state.sourceSelection].player === 1 && i === this.state.sourceSelection - 16) {
-                                firstMove = true;
-                            } else if (squares[this.state.sourceSelection].player === 2 && i === this.state.sourceSelection + 16) {
-                                firstMove = true;
+                            let lastTurn = this.state.turn !== 'white' ? 'black' : 'white';
+                            let firstMove;
+                            if (squares[this.state.sourceSelection].name === "Pawn") {
+                                if (squares[this.state.sourceSelection].player === 1 && i === this.state.sourceSelection - 16) {
+                                    firstMove = true;
+                                } else if (squares[this.state.sourceSelection].player === 2 && i === this.state.sourceSelection + 16) {
+                                    firstMove = true;
+                                }
                             }
+                            let lastTurnPawnPosition = i;
+
+                            squares[i] = squares[this.state.sourceSelection];
+                            squares[this.state.lastTurnPawnPosition] = null;
+                            squares[this.state.sourceSelection] = null;
+                            let player = this.state.player === 1 ? 2 : 1;
+                            let turn = this.state.turn === 'white' ? 'black' : 'white';
+
+                            this.setState({
+                                sourceSelection: -1,
+                                squares: squares,
+                                whiteFallenSoldiers: whiteFallenSoldiers,
+                                blackFallenSoldiers: blackFallenSoldiers,
+                                player: player,
+                                status: '',
+                                turn: turn,
+                                lastTurn: lastTurn,
+                                firstMove: firstMove,
+                                lastTurnPawnPosition: lastTurnPawnPosition
+                            });
+                        } else {
+                            if (squares[i] !== null) {
+                                if (squares[i].player === 1) {
+                                    whiteFallenSoldiers.push(squares[i]);
+                                }
+                                else {
+                                    blackFallenSoldiers.push(squares[i]);
+                                }
+                            }
+                            // console.log("whiteFallenSoldiers", whiteFallenSoldiers);
+                            // console.log("blackFallenSoldiers", blackFallenSoldiers);
+
+                            let lastTurn = this.state.turn !== 'white' ? 'black' : 'white';
+                            let firstMove;
+                            if (squares[this.state.sourceSelection].name === "Pawn") {
+                                if (squares[this.state.sourceSelection].player === 1 && i === this.state.sourceSelection - 16) {
+                                    firstMove = true;
+                                } else if (squares[this.state.sourceSelection].player === 2 && i === this.state.sourceSelection + 16) {
+                                    firstMove = true;
+                                }
+                            }
+                            let lastTurnPawnPosition = i;
+
+                            squares[i] = squares[this.state.sourceSelection];
+                            squares[this.state.sourceSelection] = null;
+                            let player = this.state.player === 1 ? 2 : 1;
+                            let turn = this.state.turn === 'white' ? 'black' : 'white';
+
+                            this.setState({
+                                sourceSelection: -1,
+                                squares: squares,
+                                whiteFallenSoldiers: whiteFallenSoldiers,
+                                blackFallenSoldiers: blackFallenSoldiers,
+                                player: player,
+                                status: '',
+                                turn: turn,
+                                lastTurn: lastTurn,
+                                firstMove: firstMove,
+                                lastTurnPawnPosition: lastTurnPawnPosition
+                            });
                         }
-
-                        squares[i] = squares[this.state.sourceSelection];
-                        squares[this.state.sourceSelection] = null;
-                        let player = this.state.player === 1 ? 2 : 1;
-                        let turn = this.state.turn === 'white' ? 'black' : 'white';
-
-                        this.setState({
-                            sourceSelection: -1,
-                            squares: squares,
-                            whiteFallenSoldiers: whiteFallenSoldiers,
-                            blackFallenSoldiers: blackFallenSoldiers,
-                            player: player,
-                            status: '',
-                            turn: turn,
-                            lastTurn: lastTurn,
-                            firstMove: firstMove
-                        });
                     }
                     else {
                         // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
