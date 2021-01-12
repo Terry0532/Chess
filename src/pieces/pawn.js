@@ -10,13 +10,16 @@ export default class Pawn extends Piece {
         this.name = "Pawn"
     }
 
-    isMovePossible(src, dest, isDestEnemyOccupied) {
-
+    isMovePossible(src, dest, isDestEnemyOccupied, enpassant, enpassantPosition) {
+        console.log(enpassantPosition)
         if (this.player === 1) {
             if ((dest === src - 8 && !isDestEnemyOccupied) || (dest === src - 16 && this.initialPositions[1].indexOf(src) !== -1 && !isDestEnemyOccupied)) {
                 return true;
             }
             else if (isDestEnemyOccupied && (dest === src - 9 || dest === src - 7)) {
+                return true;
+            }
+            else if (enpassant && !isDestEnemyOccupied && enpassantPosition - 8 === dest) {
                 return true;
             }
         }
@@ -25,6 +28,9 @@ export default class Pawn extends Piece {
                 return true;
             }
             else if (isDestEnemyOccupied && (dest === src + 9 || dest === src + 7)) {
+                return true;
+            }
+            else if (enpassant && !isDestEnemyOccupied && enpassantPosition + 8 === dest) {
                 return true;
             }
         }

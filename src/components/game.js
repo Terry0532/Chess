@@ -15,8 +15,10 @@ export default class Game extends React.Component {
             player: 1,
             sourceSelection: -1,
             status: '',
-            turn: 'white'
-            // round: 0
+            turn: 'white',
+            lastTurn: undefined,
+            lastTurnPawnPosition: undefined,
+            firstMove: undefined
         }
     }
 
@@ -60,52 +62,114 @@ export default class Game extends React.Component {
             else {
                 const squares = this.state.squares.slice();
 
-                // if (squares[this.state.sourceSelection].player === 1) {
-                //     const temp = this.state.round + 1;
-                //     this.setState({
-                //         round: temp
-                //     })
-                // }
-
                 const whiteFallenSoldiers = this.state.whiteFallenSoldiers.slice();
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
-                const isDestEnemyOccupied = squares[i] ? true : false;
-                const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied);
-                const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
-                const isMoveLegal = this.isMoveLegal(srcToDestPath);
-                if (isMovePossible && isMoveLegal) {
-                    if (squares[i] !== null) {
-                        console.log("here")
-                        if (squares[i].player === 1) {
-                            whiteFallenSoldiers.push(squares[i]);
-                        }
-                        else {
-                            blackFallenSoldiers.push(squares[i]);
+
+                if (squares[this.state.sourceSelection].name === "Pawn") {
+                    this.setState({
+                        lastTurnPawnPosition: i
+                    })
+
+                    let enpassant;
+                    if (this.state.sourceSelection - 1 === this.state.lastTurnPawnPosition || this.state.sourceSelection + 1 === this.state.lastTurnPawnPosition) {
+                        if (this.state.firstMove) {
+                            enpassant = true;
                         }
                     }
-                    console.log("whiteFallenSoldiers", whiteFallenSoldiers);
-                    console.log("blackFallenSoldiers", blackFallenSoldiers);
-                    squares[i] = squares[this.state.sourceSelection];
-                    squares[this.state.sourceSelection] = null;
-                    let player = this.state.player === 1 ? 2 : 1;
-                    let turn = this.state.turn === 'white' ? 'black' : 'white';
-                    this.setState({
-                        sourceSelection: -1,
-                        squares: squares,
-                        whiteFallenSoldiers: whiteFallenSoldiers,
-                        blackFallenSoldiers: blackFallenSoldiers,
-                        player: player,
-                        status: '',
-                        turn: turn
-                    });
+
+                    const isDestEnemyOccupied = squares[i] ? true : false;
+                    const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied, enpassant, this.state.lastTurnPawnPosition);
+                    const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
+                    const isMoveLegal = this.isMoveLegal(srcToDestPath);
+
+                    if (isMovePossible && isMoveLegal) {
+                        if (squares[i] !== null) {
+                            if (squares[i].player === 1) {
+                                whiteFallenSoldiers.push(squares[i]);
+                            }
+                            else {
+                                blackFallenSoldiers.push(squares[i]);
+                            }
+                        }
+                        // console.log("whiteFallenSoldiers", whiteFallenSoldiers);
+                        // console.log("blackFallenSoldiers", blackFallenSoldiers);
+
+                        let lastTurn = this.state.turn !== 'white' ? 'black' : 'white';
+                        let firstMove;
+                        if (squares[this.state.sourceSelection].name === "Pawn") {
+                            if (squares[this.state.sourceSelection].player === 1 && i === this.state.sourceSelection - 16) {
+                                firstMove = true;
+                            } else if (squares[this.state.sourceSelection].player === 2 && i === this.state.sourceSelection + 16) {
+                                firstMove = true;
+                            }
+                        }
+
+                        squares[i] = squares[this.state.sourceSelection];
+                        squares[this.state.sourceSelection] = null;
+                        let player = this.state.player === 1 ? 2 : 1;
+                        let turn = this.state.turn === 'white' ? 'black' : 'white';
+
+                        this.setState({
+                            sourceSelection: -1,
+                            squares: squares,
+                            whiteFallenSoldiers: whiteFallenSoldiers,
+                            blackFallenSoldiers: blackFallenSoldiers,
+                            player: player,
+                            status: '',
+                            turn: turn,
+                            lastTurn: lastTurn,
+                            firstMove: firstMove
+                        });
+                    }
+                    else {
+                        // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
+                        this.setState({
+                            status: "Wrong selection. Choose valid source and destination again.",
+                            sourceSelection: -1,
+                        });
+                    }
+                } else {
+                    const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i);
+                    const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
+                    const isMoveLegal = this.isMoveLegal(srcToDestPath);
+
+                    if (isMovePossible && isMoveLegal) {
+                        if (squares[i] !== null) {
+                            if (squares[i].player === 1) {
+                                whiteFallenSoldiers.push(squares[i]);
+                            }
+                            else {
+                                blackFallenSoldiers.push(squares[i]);
+                            }
+                        }
+                        // console.log("whiteFallenSoldiers", whiteFallenSoldiers);
+                        // console.log("blackFallenSoldiers", blackFallenSoldiers);
+
+                        squares[i] = squares[this.state.sourceSelection];
+                        squares[this.state.sourceSelection] = null;
+                        let player = this.state.player === 1 ? 2 : 1;
+                        let turn = this.state.turn === 'white' ? 'black' : 'white';
+
+
+                        this.setState({
+                            sourceSelection: -1,
+                            squares: squares,
+                            whiteFallenSoldiers: whiteFallenSoldiers,
+                            blackFallenSoldiers: blackFallenSoldiers,
+                            player: player,
+                            status: '',
+                            turn: turn
+                        });
+                    }
+                    else {
+                        // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
+                        this.setState({
+                            status: "Wrong selection. Choose valid source and destination again.",
+                            sourceSelection: -1,
+                        });
+                    }
                 }
-                else {
-                    // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
-                    this.setState({
-                        status: "Wrong selection. Choose valid source and destination again.",
-                        sourceSelection: -1,
-                    });
-                }
+
             }
         }
 
