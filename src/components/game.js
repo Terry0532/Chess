@@ -16,7 +16,6 @@ export default class Game extends React.Component {
             sourceSelection: -1,
             status: '',
             turn: 'white',
-            lastTurn: undefined,
             lastTurnPawnPosition: undefined,
             firstMove: undefined
         }
@@ -24,12 +23,10 @@ export default class Game extends React.Component {
 
     handleClick(i) {
         const squares = this.state.squares.slice();
-        // const squares = this.state.squares;
 
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
                 this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
-                // squares[i] ? delete squares[i].style.backgroundColor : null;
                 squares[i] ? squares[i].style = { ...squares[i].style, backgroundColor: "" } : null;
             }
             else {
@@ -50,23 +47,25 @@ export default class Game extends React.Component {
         }
 
         else if (this.state.sourceSelection > -1) {
+
+            //highlight selected piece
             squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
 
             if (squares[i] && squares[i].player === this.state.player) {
-                // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
                 this.setState({
                     status: "Wrong selection. Choose valid source and destination again.",
                     sourceSelection: -1,
                 });
             }
             else {
-                const squares = this.state.squares.slice();
 
+                const squares = this.state.squares.slice();
                 const whiteFallenSoldiers = this.state.whiteFallenSoldiers.slice();
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
 
                 if (squares[this.state.sourceSelection].name === "Pawn") {
 
+                    //to determine if its possible to do en passant capture
                     let enpassant;
                     if (this.state.sourceSelection - 1 === this.state.lastTurnPawnPosition || this.state.sourceSelection + 1 === this.state.lastTurnPawnPosition) {
                         if (this.state.firstMove) {
@@ -80,31 +79,20 @@ export default class Game extends React.Component {
                     const isMoveLegal = this.isMoveLegal(srcToDestPath);
 
                     if (isMovePossible && isMoveLegal) {
+                        //if en passant is available and player decided to use it, else proceed without it
                         if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
-                            console.log("enpassant")
                             if (squares[this.state.lastTurnPawnPosition].player === 1) {
                                 whiteFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
                             }
                             else {
                                 blackFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
                             }
-                            let lastTurn = this.state.turn !== 'white' ? 'black' : 'white';
-                            let firstMove;
-                            if (squares[this.state.sourceSelection].name === "Pawn") {
-                                if (squares[this.state.sourceSelection].player === 1 && i === this.state.sourceSelection - 16) {
-                                    firstMove = true;
-                                } else if (squares[this.state.sourceSelection].player === 2 && i === this.state.sourceSelection + 16) {
-                                    firstMove = true;
-                                }
-                            }
-                            let lastTurnPawnPosition = i;
-
                             squares[i] = squares[this.state.sourceSelection];
                             squares[this.state.lastTurnPawnPosition] = null;
                             squares[this.state.sourceSelection] = null;
+
                             let player = this.state.player === 1 ? 2 : 1;
                             let turn = this.state.turn === 'white' ? 'black' : 'white';
-
                             this.setState({
                                 sourceSelection: -1,
                                 squares: squares,
@@ -112,10 +100,7 @@ export default class Game extends React.Component {
                                 blackFallenSoldiers: blackFallenSoldiers,
                                 player: player,
                                 status: '',
-                                turn: turn,
-                                lastTurn: lastTurn,
-                                firstMove: firstMove,
-                                lastTurnPawnPosition: lastTurnPawnPosition
+                                turn: turn
                             });
                         } else {
                             if (squares[i] !== null) {
@@ -126,10 +111,8 @@ export default class Game extends React.Component {
                                     blackFallenSoldiers.push(squares[i]);
                                 }
                             }
-                            // console.log("whiteFallenSoldiers", whiteFallenSoldiers);
-                            // console.log("blackFallenSoldiers", blackFallenSoldiers);
 
-                            let lastTurn = this.state.turn !== 'white' ? 'black' : 'white';
+                            //check if current pawn is moving for the first time and moving 2 squares forward
                             let firstMove;
                             if (squares[this.state.sourceSelection].name === "Pawn") {
                                 if (squares[this.state.sourceSelection].player === 1 && i === this.state.sourceSelection - 16) {
@@ -138,13 +121,14 @@ export default class Game extends React.Component {
                                     firstMove = true;
                                 }
                             }
+
+                            //record current pawn position for next turn to check en passant rule
                             let lastTurnPawnPosition = i;
 
                             squares[i] = squares[this.state.sourceSelection];
                             squares[this.state.sourceSelection] = null;
                             let player = this.state.player === 1 ? 2 : 1;
                             let turn = this.state.turn === 'white' ? 'black' : 'white';
-
                             this.setState({
                                 sourceSelection: -1,
                                 squares: squares,
@@ -153,14 +137,12 @@ export default class Game extends React.Component {
                                 player: player,
                                 status: '',
                                 turn: turn,
-                                lastTurn: lastTurn,
                                 firstMove: firstMove,
                                 lastTurnPawnPosition: lastTurnPawnPosition
                             });
                         }
                     }
                     else {
-                        // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
                         this.setState({
                             status: "Wrong selection. Choose valid source and destination again.",
                             sourceSelection: -1,
@@ -180,15 +162,11 @@ export default class Game extends React.Component {
                                 blackFallenSoldiers.push(squares[i]);
                             }
                         }
-                        // console.log("whiteFallenSoldiers", whiteFallenSoldiers);
-                        // console.log("blackFallenSoldiers", blackFallenSoldiers);
-
                         squares[i] = squares[this.state.sourceSelection];
                         squares[this.state.sourceSelection] = null;
+
                         let player = this.state.player === 1 ? 2 : 1;
                         let turn = this.state.turn === 'white' ? 'black' : 'white';
-
-
                         this.setState({
                             sourceSelection: -1,
                             squares: squares,
@@ -200,7 +178,6 @@ export default class Game extends React.Component {
                         });
                     }
                     else {
-                        // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
                         this.setState({
                             status: "Wrong selection. Choose valid source and destination again.",
                             sourceSelection: -1,
