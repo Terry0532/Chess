@@ -36,18 +36,38 @@ export default class Pawn extends Piece {
         return false;
     }
 
-    // possibleMoves(src, squares) {
-    //     const highLightMoves = [];
-    //     if (this.player === 1) {
-    //         highLightMoves.push((src - 8));
-    //         highLightMoves.push((src - 16));
-    //         return highLightMoves;
-    //     } else {
-    //         highLightMoves.push((src + 8));
-    //         highLightMoves.push((src + 16));
-    //         return highLightMoves;
-    //     }
-    // }
+    possibleMoves(src, squares) {
+        const highLightMoves = [];
+        if (this.player === 1) {
+            if (squares[src - 8] === null && squares[src - 16] === null && this.initialPositions[this.player].indexOf(src) !== -1) {
+                highLightMoves.push((src - 8));
+                highLightMoves.push((src - 16));
+            } else if (squares[src - 8] === null) {
+                highLightMoves.push((src - 8));
+            }
+            if (squares[src - 9] !== null && (src - 8) % 8 !== 0 && squares[src - 9].player === 2) {
+                highLightMoves.push((src - 9));
+            }
+            if (squares[src - 7] !== null && (src - 7) % 8 !== 0 && squares[src - 7].player === 2) {
+                highLightMoves.push((src - 7));
+            }
+        } else {
+            if (squares[src + 8] === null && squares[src + 16] === null && this.initialPositions[this.player].indexOf(src) !== -1) {
+                highLightMoves.push((src + 8));
+                highLightMoves.push((src + 16));
+            } else if (squares[src + 8] === null) {
+                highLightMoves.push((src + 8));
+            }
+            if (squares[src + 9] !== null && (src + 8) % 8 !== 0 && squares[src + 9].player === 1) {
+                highLightMoves.push((src + 9));
+            }
+            if (squares[src + 7] !== null && (src + 7) % 8 !== 0 && squares[src + 7].player === 1) {
+                highLightMoves.push((src + 7));
+            }
+        }
+        console.log(highLightMoves)
+        return highLightMoves;
+    }
 
     /**
      * returns array of one if pawn moves two steps, else returns empty array  

@@ -32,12 +32,12 @@ export default class Game extends React.Component {
             else {
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
-                // const highLightMoves = squares[i].possibleMoves(i, squares);
-                // for (let index = 0; index < highLightMoves.length; index++) {
-                //     const element = highLightMoves[index];
-                //     squares.splice(element, 1, { style: { backgroundColor: "RGB(111,143,114" } });
-                // }
-                // console.log(squares);
+                const highLightMoves = squares[i].possibleMoves(i, squares);
+                console.log(i)
+                for (let index = 0; index < highLightMoves.length; index++) {
+                    const element = highLightMoves[index];
+                    squares.splice(element, 1, { style: { backgroundColor: "RGB(111,143,114" } });
+                }
 
                 this.setState({
                     status: "Choose destination for the selected piece",
@@ -64,7 +64,6 @@ export default class Game extends React.Component {
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
 
                 if (squares[this.state.sourceSelection].name === "Pawn") {
-
                     //to determine if its possible to do en passant capture
                     let enpassant;
                     if (this.state.sourceSelection - 1 === this.state.lastTurnPawnPosition || this.state.sourceSelection + 1 === this.state.lastTurnPawnPosition) {
