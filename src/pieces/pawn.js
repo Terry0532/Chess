@@ -7,12 +7,13 @@ export default class Pawn extends Piece {
             1: [48, 49, 50, 51, 52, 53, 54, 55],
             2: [8, 9, 10, 11, 12, 13, 14, 15]
         }
+        this.name = "Pawn"
     }
 
     isMovePossible(src, dest, isDestEnemyOccupied) {
 
         if (this.player === 1) {
-            if ((dest === src - 8 && !isDestEnemyOccupied) || (dest === src - 16 && this.initialPositions[1].indexOf(src) !== -1)) {
+            if ((dest === src - 8 && !isDestEnemyOccupied) || (dest === src - 16 && this.initialPositions[1].indexOf(src) !== -1 && !isDestEnemyOccupied)) {
                 return true;
             }
             else if (isDestEnemyOccupied && (dest === src - 9 || dest === src - 7)) {
@@ -20,7 +21,7 @@ export default class Pawn extends Piece {
             }
         }
         else if (this.player === 2) {
-            if ((dest === src + 8 && !isDestEnemyOccupied) || (dest === src + 16 && this.initialPositions[2].indexOf(src) !== -1)) {
+            if ((dest === src + 8 && !isDestEnemyOccupied) || (dest === src + 16 && this.initialPositions[2].indexOf(src) !== -1 && !isDestEnemyOccupied)) {
                 return true;
             }
             else if (isDestEnemyOccupied && (dest === src + 9 || dest === src + 7)) {
@@ -29,6 +30,19 @@ export default class Pawn extends Piece {
         }
         return false;
     }
+
+    // possibleMoves(src, squares) {
+    //     const highLightMoves = [];
+    //     if (this.player === 1) {
+    //         highLightMoves.push((src - 8));
+    //         highLightMoves.push((src - 16));
+    //         return highLightMoves;
+    //     } else {
+    //         highLightMoves.push((src + 8));
+    //         highLightMoves.push((src + 16));
+    //         return highLightMoves;
+    //     }
+    // }
 
     /**
      * returns array of one if pawn moves two steps, else returns empty array  

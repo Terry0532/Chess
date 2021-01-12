@@ -16,11 +16,13 @@ export default class Game extends React.Component {
             sourceSelection: -1,
             status: '',
             turn: 'white'
+            // round: 0
         }
     }
 
     handleClick(i) {
         const squares = this.state.squares.slice();
+        // const squares = this.state.squares;
 
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
@@ -30,6 +32,14 @@ export default class Game extends React.Component {
             }
             else {
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
+
+                // const highLightMoves = squares[i].possibleMoves(i, squares);
+                // for (let index = 0; index < highLightMoves.length; index++) {
+                //     const element = highLightMoves[index];
+                //     squares.splice(element, 1, { style: { backgroundColor: "RGB(111,143,114" } });
+                // }
+                // console.log(squares);
+
                 this.setState({
                     status: "Choose destination for the selected piece",
                     sourceSelection: i
@@ -41,7 +51,7 @@ export default class Game extends React.Component {
             squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
 
             if (squares[i] && squares[i].player === this.state.player) {
-                squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
+                // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
                 this.setState({
                     status: "Wrong selection. Choose valid source and destination again.",
                     sourceSelection: -1,
@@ -49,15 +59,23 @@ export default class Game extends React.Component {
             }
             else {
                 const squares = this.state.squares.slice();
+
+                // if (squares[this.state.sourceSelection].player === 1) {
+                //     const temp = this.state.round + 1;
+                //     this.setState({
+                //         round: temp
+                //     })
+                // }
+
                 const whiteFallenSoldiers = this.state.whiteFallenSoldiers.slice();
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
                 const isDestEnemyOccupied = squares[i] ? true : false;
                 const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied);
                 const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
                 const isMoveLegal = this.isMoveLegal(srcToDestPath);
-
                 if (isMovePossible && isMoveLegal) {
                     if (squares[i] !== null) {
+                        console.log("here")
                         if (squares[i].player === 1) {
                             whiteFallenSoldiers.push(squares[i]);
                         }
@@ -82,7 +100,7 @@ export default class Game extends React.Component {
                     });
                 }
                 else {
-                    squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
+                    // squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
                     this.setState({
                         status: "Wrong selection. Choose valid source and destination again.",
                         sourceSelection: -1,
