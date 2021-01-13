@@ -32,13 +32,7 @@ export default class Game extends React.Component {
             else {
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
-                let enpassant = false;
-                if (i - 1 === this.state.lastTurnPawnPosition || i + 1 === this.state.lastTurnPawnPosition) {
-                    if (this.state.firstMove) {
-                        enpassant = true;
-                    }
-                }
-                // console.log(enpassant)
+                const enpassant = this.enpassant(i);
                 const highLightMoves = squares[i].possibleMoves(i, squares, enpassant);
                 console.log(highLightMoves)
                 // for (let index = 0; index < highLightMoves.length; index++) {
@@ -72,14 +66,8 @@ export default class Game extends React.Component {
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
 
                 if (squares[this.state.sourceSelection].name === "Pawn") {
-                    //to determine if its possible to do en passant capture
-                    let enpassant;
-                    if (this.state.sourceSelection - 1 === this.state.lastTurnPawnPosition || this.state.sourceSelection + 1 === this.state.lastTurnPawnPosition) {
-                        if (this.state.firstMove) {
-                            enpassant = true;
-                        }
-                    }
 
+                    const enpassant = this.enpassant(this.state.sourceSelection);
                     const isDestEnemyOccupied = squares[i] ? true : false;
                     const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied, enpassant, this.state.lastTurnPawnPosition);
                     const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
@@ -210,6 +198,17 @@ export default class Game extends React.Component {
             }
         }
         return isLegal;
+    }
+
+    //to determine if its possible to do en passant capture
+    enpassant(selectedPawnPosition) {
+        let enpassant = false;
+        if (selectedPawnPosition - 1 === this.state.lastTurnPawnPosition || selectedPawnPosition + 1 === this.state.lastTurnPawnPosition) {
+            if (this.state.firstMove) {
+                enpassant = true;
+            }
+        }
+        return enpassant;
     }
 
     render() {
