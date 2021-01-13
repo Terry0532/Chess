@@ -32,14 +32,22 @@ export default class Game extends React.Component {
             else {
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
-                const highLightMoves = squares[i].possibleMoves(i, squares);
-                console.log(i)
-                for (let index = 0; index < highLightMoves.length; index++) {
-                    const element = highLightMoves[index];
-                    squares.splice(element, 1, { style: { backgroundColor: "RGB(111,143,114" } });
+                let enpassant = false;
+                if (i - 1 === this.state.lastTurnPawnPosition || i + 1 === this.state.lastTurnPawnPosition) {
+                    if (this.state.firstMove) {
+                        enpassant = true;
+                    }
                 }
+                // console.log(enpassant)
+                const highLightMoves = squares[i].possibleMoves(i, squares, enpassant);
+                console.log(highLightMoves)
+                // for (let index = 0; index < highLightMoves.length; index++) {
+                //     const element = highLightMoves[index];
+                //     squares.splice(element, 1, { style: { backgroundColor: "RGB(111,143,114)" } });
+                // }
 
                 this.setState({
+                    squares: squares,
                     status: "Choose destination for the selected piece",
                     sourceSelection: i
                 });
