@@ -17,12 +17,14 @@ export default class Game extends React.Component {
             status: '',
             turn: 'white',
             lastTurnPawnPosition: undefined,
-            firstMove: undefined
+            firstMove: undefined,
+            highLightMoves: []
         }
     }
 
     handleClick(i) {
         const squares = this.state.squares.slice();
+        const highLightMoves = this.state.highLightMoves.slice();
 
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
@@ -30,27 +32,36 @@ export default class Game extends React.Component {
                 squares[i] ? squares[i].style = { ...squares[i].style, backgroundColor: "" } : null;
             }
             else {
+                //highlight selected piece
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
+                //highlight possible moves
                 const enpassant = this.enpassant(i);
-                const highLightMoves = squares[i].possibleMoves(i, squares, enpassant);
-                console.log(highLightMoves)
-                // for (let index = 0; index < highLightMoves.length; index++) {
-                //     const element = highLightMoves[index];
-                //     squares.splice(element, 1, { style: { backgroundColor: "RGB(111,143,114)" } });
-                // }
+                const temp = squares[i].possibleMoves(i, squares, enpassant);
+                for (let index = 0; index < temp.length; index++) {
+                    const element = temp[index];
+                    highLightMoves.push(element);
+                }
+                for (let index = 0; index < highLightMoves.length; index++) {
+                    const element = highLightMoves[index];
+                    if (squares[element] !== null) {
+                        squares[element].style = { ...squares[element].style, backgroundColor: "RGB(111,143,114)" };
+                    } else {
+                        squares.splice(element, 1, { style: { backgroundColor: "RGB(111,143,114)" } });
+                    }
+                }
 
                 this.setState({
                     squares: squares,
                     status: "Choose destination for the selected piece",
-                    sourceSelection: i
+                    sourceSelection: i,
+                    highLightMoves: highLightMoves
                 });
             }
         }
 
         else if (this.state.sourceSelection > -1) {
-
-            //highlight selected piece
+            //dehighlight selected piece
             squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
 
             if (squares[i] && squares[i].player === this.state.player) {
@@ -60,18 +71,27 @@ export default class Game extends React.Component {
                 });
             }
             else {
-
                 const squares = this.state.squares.slice();
                 const whiteFallenSoldiers = this.state.whiteFallenSoldiers.slice();
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
 
                 if (squares[this.state.sourceSelection].name === "Pawn") {
 
+                    //dehighlight possible moves
+                    for (let index = 0; index < this.state.highLightMoves.length; index++) {
+                        const element = this.state.highLightMoves[index];
+                        if (squares[element].name === "Pawn") {
+                            squares[element].style = { ...squares[element].style, backgroundColor: "" };
+                        } else {
+                            squares[element] = null;
+                        }
+                    }
+
                     const enpassant = this.enpassant(this.state.sourceSelection);
                     const isDestEnemyOccupied = squares[i] ? true : false;
                     const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied, enpassant, this.state.lastTurnPawnPosition);
                     const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
-                    const isMoveLegal = this.isMoveLegal(srcToDestPath);
+                    const isMoveLegal = this.isMoveLegal(srcToDestPath, squares);
 
                     if (isMovePossible && isMoveLegal) {
                         //if en passant is available and player decided to use it, else proceed without it
@@ -95,7 +115,8 @@ export default class Game extends React.Component {
                                 blackFallenSoldiers: blackFallenSoldiers,
                                 player: player,
                                 status: '',
-                                turn: turn
+                                turn: turn,
+                                highLightMoves: []
                             });
                         } else {
                             if (squares[i] !== null) {
@@ -133,11 +154,13 @@ export default class Game extends React.Component {
                                 status: '',
                                 turn: turn,
                                 firstMove: firstMove,
-                                lastTurnPawnPosition: lastTurnPawnPosition
+                                lastTurnPawnPosition: lastTurnPawnPosition,
+                                highLightMoves: []
                             });
                         }
                     }
                     else {
+                        console.log("here")
                         this.setState({
                             status: "Wrong selection. Choose valid source and destination again.",
                             sourceSelection: -1,
@@ -190,10 +213,10 @@ export default class Game extends React.Component {
      * @param  {[type]}  srcToDestPath [array of board indices comprising path between src and dest ]
      * @return {Boolean}               
      */
-    isMoveLegal(srcToDestPath) {
+    isMoveLegal(srcToDestPath, squares) {
         let isLegal = true;
         for (let i = 0; i < srcToDestPath.length; i++) {
-            if (this.state.squares[srcToDestPath[i]] !== null) {
+            if (squares[srcToDestPath[i]] !== null) {
                 isLegal = false;
             }
         }

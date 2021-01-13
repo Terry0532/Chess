@@ -49,7 +49,6 @@ export default class Pawn extends Piece {
                 highLightMoves.push((src - 9));
             }
             if (squares[src - 7] !== null && (src - 7) % 8 !== 0 && squares[src - 7].player === 2) {
-                console.log("24")
                 highLightMoves.push((src - 7));
             }
             if (enpassant && squares[src - 1] !== null && src % 8 !== 0 && squares[src - 1].player === 2) {
