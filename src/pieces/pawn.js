@@ -7,7 +7,7 @@ export default class Pawn extends Piece {
             1: [48, 49, 50, 51, 52, 53, 54, 55],
             2: [8, 9, 10, 11, 12, 13, 14, 15]
         }
-        this.name = "Pawn"
+        this.name = "Pawn";
     }
 
     isMovePossible(src, dest, isDestEnemyOccupied, enpassant, enpassantPosition) {
@@ -80,12 +80,6 @@ export default class Pawn extends Piece {
         return highLightMoves;
     }
 
-    /**
-     * returns array of one if pawn moves two steps, else returns empty array  
-     * @param  {[type]} src  [description]
-     * @param  {[type]} dest [description]
-     * @return {[type]}      [description]
-     */
     getSrcToDestPath(src, dest) {
         if (dest === src - 16) {
             return [src - 8];

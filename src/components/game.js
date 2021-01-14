@@ -36,8 +36,13 @@ export default class Game extends React.Component {
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
                 //highlight possible moves
-                const enpassant = this.enpassant(i);
-                const temp = squares[i].possibleMoves(i, squares, enpassant);
+                let temp;
+                if (squares[i].name === "Pawn") {
+                    const enpassant = this.enpassant(i);
+                    temp = squares[i].possibleMoves(i, squares, enpassant);
+                } else {
+                    temp = squares[i].possibleMoves(i, squares);
+                }
                 for (let index = 0; index < temp.length; index++) {
                     const element = temp[index];
                     highLightMoves.push(element);
@@ -167,6 +172,16 @@ export default class Game extends React.Component {
                         });
                     }
                 } else {
+                    //dehighlight possible moves
+                    for (let index = 0; index < this.state.highLightMoves.length; index++) {
+                        const element = this.state.highLightMoves[index];
+                        if (squares[element].name === "Knight") {
+                            squares[element].style = { ...squares[element].style, backgroundColor: "" };
+                        } else {
+                            squares[element] = null;
+                        }
+                    }
+
                     const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i);
                     const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
                     const isMoveLegal = this.isMoveLegal(srcToDestPath);
@@ -192,7 +207,8 @@ export default class Game extends React.Component {
                             blackFallenSoldiers: blackFallenSoldiers,
                             player: player,
                             status: '',
-                            turn: turn
+                            turn: turn,
+                            highLightMoves: []
                         });
                     }
                     else {
