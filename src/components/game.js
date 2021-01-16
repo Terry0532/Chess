@@ -23,7 +23,7 @@ export default class Game extends React.Component {
     }
 
     handleClick(i) {
-        const squares = this.state.squares.slice();
+        let squares = this.state.squares.slice();
         const highLightMoves = this.state.highLightMoves.slice();
 
         if (this.state.sourceSelection === -1) {
@@ -70,28 +70,21 @@ export default class Game extends React.Component {
             squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
 
             if (squares[i] && squares[i].player === this.state.player) {
+                squares = this.dehighlight(squares);
                 this.setState({
                     status: "Wrong selection. Choose valid source and destination again.",
                     sourceSelection: -1,
+                    highLightMoves: [],
+                    squares: squares
                 });
             }
             else {
-                const squares = this.state.squares.slice();
+                let squares = this.state.squares.slice();
                 const whiteFallenSoldiers = this.state.whiteFallenSoldiers.slice();
                 const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
 
                 if (squares[this.state.sourceSelection].name === "Pawn") {
-
-                    //dehighlight possible moves
-                    for (let index = 0; index < this.state.highLightMoves.length; index++) {
-                        const element = this.state.highLightMoves[index];
-                        if (squares[element].name === "Pawn") {
-                            squares[element].style = { ...squares[element].style, backgroundColor: "" };
-                        } else {
-                            squares[element] = null;
-                        }
-                    }
-
+                    squares = this.dehighlight(squares);
                     const enpassant = this.enpassant(this.state.sourceSelection);
                     const isDestEnemyOccupied = squares[i] ? true : false;
                     const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied, enpassant, this.state.lastTurnPawnPosition);
@@ -165,22 +158,15 @@ export default class Game extends React.Component {
                         }
                     }
                     else {
-                        console.log("here")
                         this.setState({
                             status: "Wrong selection. Choose valid source and destination again.",
                             sourceSelection: -1,
+                            squares: squares,
+                            highLightMoves: []
                         });
                     }
                 } else {
-                    //dehighlight possible moves
-                    for (let index = 0; index < this.state.highLightMoves.length; index++) {
-                        const element = this.state.highLightMoves[index];
-                        if (squares[element].name === "Knight") {
-                            squares[element].style = { ...squares[element].style, backgroundColor: "" };
-                        } else {
-                            squares[element] = null;
-                        }
-                    }
+                    squares = this.dehighlight(squares);
 
                     const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i);
                     const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
@@ -215,6 +201,8 @@ export default class Game extends React.Component {
                         this.setState({
                             status: "Wrong selection. Choose valid source and destination again.",
                             sourceSelection: -1,
+                            highLightMoves: [],
+                            squares: squares
                         });
                     }
                 }
@@ -248,6 +236,19 @@ export default class Game extends React.Component {
             }
         }
         return enpassant;
+    }
+
+    //dehighlight possible moves
+    dehighlight(squares) {
+        for (let index = 0; index < this.state.highLightMoves.length; index++) {
+            const element = this.state.highLightMoves[index];
+            if (squares[element].name === "Pawn" || squares[element].name === "Knight") {
+                squares[element].style = { ...squares[element].style, backgroundColor: "" };
+            } else {
+                squares[element] = null;
+            }
+        }
+        return squares;
     }
 
     render() {
