@@ -237,7 +237,7 @@ export default class Game extends React.Component {
     dehighlight(squares) {
         for (let index = 0; index < this.state.highLightMoves.length; index++) {
             const element = this.state.highLightMoves[index];
-            if (squares[element].name === "Pawn" || squares[element].name === "Knight" || squares[element].name === "Rook") {
+            if (squares[element].name === "Pawn" || squares[element].name === "Knight" || squares[element].name === "Rook" || squares[element].name === "Bishop") {
                 squares[element].style = { ...squares[element].style, backgroundColor: "" };
             } else {
                 squares[element] = null;
