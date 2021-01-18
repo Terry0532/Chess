@@ -170,7 +170,7 @@ export default class Game extends React.Component {
 
                     const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i);
                     const srcToDestPath = squares[this.state.sourceSelection].getSrcToDestPath(this.state.sourceSelection, i);
-                    const isMoveLegal = this.isMoveLegal(srcToDestPath);
+                    const isMoveLegal = this.isMoveLegal(srcToDestPath, squares);
 
                     if (isMovePossible && isMoveLegal) {
                         if (squares[i] !== null) {
@@ -212,11 +212,6 @@ export default class Game extends React.Component {
 
     }
 
-    /**
-     * Check all path indices are null. For one steps move of pawn/others or jumping moves of knight array is empty, so  move is legal.
-     * @param  {[type]}  srcToDestPath [array of board indices comprising path between src and dest ]
-     * @return {Boolean}               
-     */
     isMoveLegal(srcToDestPath, squares) {
         let isLegal = true;
         for (let i = 0; i < srcToDestPath.length; i++) {
@@ -242,7 +237,7 @@ export default class Game extends React.Component {
     dehighlight(squares) {
         for (let index = 0; index < this.state.highLightMoves.length; index++) {
             const element = this.state.highLightMoves[index];
-            if (squares[element].name === "Pawn" || squares[element].name === "Knight") {
+            if (squares[element].name === "Pawn" || squares[element].name === "Knight" || squares[element].name === "Rook") {
                 squares[element].style = { ...squares[element].style, backgroundColor: "" };
             } else {
                 squares[element] = null;
