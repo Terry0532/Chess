@@ -10,32 +10,6 @@ export default class Pawn extends Piece {
         this.name = "Pawn";
     }
 
-    isMovePossible(src, dest, isDestEnemyOccupied, enpassant, enpassantPosition) {
-        if (this.player === 1) {
-            if ((dest === src - 8 && !isDestEnemyOccupied) || (dest === src - 16 && this.initialPositions[1].indexOf(src) !== -1 && !isDestEnemyOccupied)) {
-                return true;
-            }
-            else if (isDestEnemyOccupied && (dest === src - 9 || dest === src - 7)) {
-                return true;
-            }
-            else if (enpassant && !isDestEnemyOccupied && enpassantPosition - 8 === dest) {
-                return true;
-            }
-        }
-        else if (this.player === 2) {
-            if ((dest === src + 8 && !isDestEnemyOccupied) || (dest === src + 16 && this.initialPositions[2].indexOf(src) !== -1 && !isDestEnemyOccupied)) {
-                return true;
-            }
-            else if (isDestEnemyOccupied && (dest === src + 9 || dest === src + 7)) {
-                return true;
-            }
-            else if (enpassant && !isDestEnemyOccupied && enpassantPosition + 8 === dest) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     possibleMoves(src, squares, enpassant, lastTurnPawnPosition) {
         const highLightMoves = [];
         if (this.player === 1) {
@@ -45,10 +19,10 @@ export default class Pawn extends Piece {
             } else if (squares[src - 8] === null) {
                 highLightMoves.push((src - 8));
             }
-            if (squares[src - 9] !== null && (src - 8) % 8 !== 0 && squares[src - 9].player === 2) {
+            if (squares[src - 9] !== null && src % 8 !== 0 && squares[src - 9].player === 2) {
                 highLightMoves.push((src - 9));
             }
-            if (squares[src - 7] !== null && (src - 7) % 8 !== 0 && squares[src - 7].player === 2) {
+            if (squares[src - 7] !== null && (src + 1) % 8 !== 0 && squares[src - 7].player === 2) {
                 highLightMoves.push((src - 7));
             }
             if (enpassant && squares[src - 1] !== null && src % 8 !== 0 && squares[src - 1].player === 2 && (src - 1) === lastTurnPawnPosition) {
@@ -64,29 +38,19 @@ export default class Pawn extends Piece {
             } else if (squares[src + 8] === null) {
                 highLightMoves.push((src + 8));
             }
-            if (squares[src + 9] !== null && (src + 8) % 8 !== 0 && squares[src + 9].player === 1) {
+            if (squares[src + 9] !== null && (src + 1) % 8 !== 0 && squares[src + 9].player === 1) {
                 highLightMoves.push((src + 9));
             }
-            if (squares[src + 7] !== null && (src + 7) % 8 !== 0 && squares[src + 7].player === 1) {
+            if (squares[src + 7] !== null && src % 8 !== 0 && squares[src + 7].player === 1) {
                 highLightMoves.push((src + 7));
             }
-            if (enpassant && squares[src - 1] !== null && src % 8 !== 0 && squares[src - 1].player === 1) {
+            if (enpassant && squares[src - 1] !== null && src % 8 !== 0 && squares[src - 1].player === 1 && (src - 1) === lastTurnPawnPosition) {
                 highLightMoves.push((src + 7));
             }
-            if (enpassant && squares[src + 1] !== null && (src + 1) % 8 !== 0 && squares[src + 1].player === 1) {
+            if (enpassant && squares[src + 1] !== null && (src + 1) % 8 !== 0 && squares[src + 1].player === 1 && (src + 1) === lastTurnPawnPosition) {
                 highLightMoves.push((src + 9));
             }
         }
         return highLightMoves;
-    }
-
-    getSrcToDestPath(src, dest) {
-        if (dest === src - 16) {
-            return [src - 8];
-        }
-        else if (dest === src + 16) {
-            return [src + 8];
-        }
-        return [];
     }
 }

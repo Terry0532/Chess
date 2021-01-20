@@ -6,19 +6,6 @@ export default class Knight extends Piece {
         this.name = "Knight";
     }
 
-    isMovePossible(src, dest) {
-        if ((src - 17 === dest && src % 8 !== 0) ||
-            (src - 10 === dest && src % 8 !== 0 && (src - 1) % 8 !== 0) ||
-            (src + 6 === dest && src % 8 !== 0 && (src - 1) % 8 !== 0) ||
-            (src + 15 === dest && src % 8 !== 0) ||
-            (src - 15 === dest && (src + 1) % 8 !== 0) ||
-            (src - 6 === dest && (src + 1) % 8 !== 0 && (src + 2) % 8 !== 0) ||
-            (src + 10 === dest && (src + 2) % 8 !== 0 && (src + 1) % 8 !== 0) ||
-            (src + 17 === dest && (src + 1) % 8 !== 0)) {
-            return true;
-        }
-    }
-
     possibleMoves(src, squares) {
         const highLightMoves = [];
         if (src - 17 > -1 && squares[src - 17] === null && src % 8 !== 0) {
@@ -94,9 +81,5 @@ export default class Knight extends Piece {
             highLightMoves.push((src + 17));
         }
         return highLightMoves;
-    }
-
-    getSrcToDestPath() {
-        return [];
     }
 }

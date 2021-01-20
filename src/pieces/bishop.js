@@ -6,12 +6,6 @@ export default class Bishop extends Piece {
         this.name = "Bishop";
     }
 
-    isMovePossible(src, dest) {
-        console.log(src)
-        console.log(dest)
-        return (Math.abs(src - dest) % 9 === 0 || Math.abs(src - dest) % 7 === 0);
-    }
-
     possibleMoves(src, squares) {
         const highLightMoves = [];
         let leftup = true;
@@ -119,30 +113,5 @@ export default class Bishop extends Piece {
             }
         }
         return highLightMoves;
-    }
-
-    getSrcToDestPath(src, dest) {
-        let path = [], pathStart, pathEnd, incrementBy;
-        if (src > dest) {
-            pathStart = dest;
-            pathEnd = src;
-        }
-        else {
-            pathStart = src;
-            pathEnd = dest;
-        }
-        if (Math.abs(src - dest) % 9 === 0) {
-            incrementBy = 9;
-            pathStart += 9;
-        }
-        else {
-            incrementBy = 7;
-            pathStart += 7;
-        }
-
-        for (let i = pathStart; i < pathEnd; i += incrementBy) {
-            path.push(i);
-        }
-        return path;
     }
 }

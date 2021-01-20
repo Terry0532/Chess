@@ -6,17 +6,6 @@ export default class King extends Piece {
         this.name = "King";
     }
 
-    isMovePossible(src, dest) {
-        return (src - 9 === dest ||
-            src - 8 === dest ||
-            src - 7 === dest ||
-            src + 1 === dest ||
-            src + 9 === dest ||
-            src + 8 === dest ||
-            src + 7 === dest ||
-            src - 1 === dest);
-    }
-
     possibleMoves(src, squares) {
         const highLightMoves = [];
         //go left
@@ -100,9 +89,5 @@ export default class King extends Piece {
             highLightMoves.push((src + 9));
         }
         return highLightMoves;
-    }
-
-    getSrcToDestPath(src, dest) {
-        return [];
     }
 }
