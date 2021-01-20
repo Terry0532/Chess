@@ -72,7 +72,6 @@ export default class Game extends React.Component {
             if (squares[this.state.sourceSelection].name === "Pawn") {
                 squares = this.dehighlight(squares);
                 const enpassant = this.enpassant(this.state.sourceSelection);
-
                 if (this.state.highLightMoves.includes(i)) {
                     //if en passant is available and player decided to use it, else proceed without it
                     if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
@@ -85,7 +84,6 @@ export default class Game extends React.Component {
                         squares[i] = squares[this.state.sourceSelection];
                         squares[this.state.lastTurnPawnPosition] = null;
                         squares[this.state.sourceSelection] = null;
-
                         let player = this.state.player === 1 ? 2 : 1;
                         let turn = this.state.turn === 'white' ? 'black' : 'white';
                         this.setState({
@@ -148,7 +146,6 @@ export default class Game extends React.Component {
                 }
             } else {
                 squares = this.dehighlight(squares);
-
                 if (this.state.highLightMoves.includes(i)) {
                     if (squares[i] !== null) {
                         if (squares[i].player === 1) {
@@ -160,7 +157,6 @@ export default class Game extends React.Component {
                     }
                     squares[i] = squares[this.state.sourceSelection];
                     squares[this.state.sourceSelection] = null;
-
                     let player = this.state.player === 1 ? 2 : 1;
                     let turn = this.state.turn === 'white' ? 'black' : 'white';
                     this.setState({
@@ -183,7 +179,6 @@ export default class Game extends React.Component {
                 }
             }
         }
-
     }
 
     //to determine if its possible to do en passant capture
@@ -211,7 +206,6 @@ export default class Game extends React.Component {
     }
 
     render() {
-
         return (
             <div>
                 <div className="game">
@@ -244,8 +238,6 @@ export default class Game extends React.Component {
                     <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
                 </div>
             </div>
-
-
         );
     }
 }

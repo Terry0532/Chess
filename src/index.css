@@ -20,7 +20,8 @@ ol, ul {
 
 .square {
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid;
+  border-color: black;
   float: left;
   font-size: 24px;
   font-weight: bold;
