@@ -39,7 +39,7 @@ export default class Game extends React.Component {
                 let temp;
                 if (squares[i].name === "Pawn") {
                     const enpassant = this.enpassant(i);
-                    temp = squares[i].possibleMoves(i, squares, enpassant);
+                    temp = squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition);
                 } else {
                     temp = squares[i].possibleMoves(i, squares);
                 }
