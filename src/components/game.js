@@ -17,14 +17,39 @@ export default class Game extends React.Component {
             status: '',
             turn: 'white',
             lastTurnPawnPosition: undefined,
+            //pawn's first move and it moved 2 squares forward
             firstMove: undefined,
-            highLightMoves: []
+            highLightMoves: [],
+            allPossibleMovesWhite: [],
+            allPossibleMovesBlack: [],
+            kingFirstMove: true,
+            rookFirstMove: true
         }
     }
 
     handleClick(i) {
-        let squares = this.state.squares.slice();
+        console.log(this.state.rookFirstMove)
+        let squares = this.state.squares;
         const highLightMoves = this.state.highLightMoves;
+
+        for (let i = 0; i < this.state.squares.length; i++) {
+            if (this.state.squares[i] !== null) {
+                if (this.state.squares[i].player === 1) {
+                    if (this.state.squares[i].name === "Pawn") {
+                        let tempArray = this.state.squares[i].possibleCaptureMoves(i, this.state.squares);
+                        for (let i = 0; i < tempArray.length; i++) {
+                            this.state.allPossibleMovesWhite.push(tempArray[i]);
+                        }
+                    } else {
+                        let tempArray = this.state.squares[i].possibleMoves(i, this.state.squares);
+                        for (let i = 0; i < tempArray.length; i++) {
+                            this.state.allPossibleMovesWhite.push(tempArray[i]);
+                        }
+                    }
+                }
+            }
+        }
+        console.log(this.state.allPossibleMovesWhite.sort());
 
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
@@ -32,7 +57,7 @@ export default class Game extends React.Component {
                 squares[i] ? squares[i].style = { ...squares[i].style, backgroundColor: "" } : null;
             } else {
                 //highlight selected piece
-                squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)"}; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
+                squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
                 //highlight possible moves
                 let temp;
@@ -148,7 +173,7 @@ export default class Game extends React.Component {
                         highLightMoves: []
                     });
                 }
-            } else {
+            } else if (squares[this.state.sourceSelection].name === "King") {
                 squares = this.dehighlight(squares);
                 if (this.state.highLightMoves.includes(i)) {
                     if (squares[i] !== null) {
@@ -174,6 +199,48 @@ export default class Game extends React.Component {
                         status: '',
                         turn: turn,
                         highLightMoves: []
+                    });
+                } else {
+                    this.setState({
+                        status: "Wrong selection. Choose valid source and destination again.",
+                        sourceSelection: -1,
+                        highLightMoves: [],
+                        squares: squares
+                    });
+                }
+            } else {
+                squares = this.dehighlight(squares);
+                if (this.state.highLightMoves.includes(i)) {
+                    if (squares[i] !== null) {
+                        if (squares[i].player === 1) {
+                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
+                            whiteFallenSoldiers.push(squares[i]);
+                        }
+                        else {
+                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
+                            blackFallenSoldiers.push(squares[i]);
+                        }
+                    }
+                    squares[i] = squares[this.state.sourceSelection];
+                    squares[this.state.sourceSelection] = null;
+                    let player = this.state.player === 1 ? 2 : 1;
+                    let turn = this.state.turn === 'white' ? 'black' : 'white';
+
+                    let rookFirstMove;
+                    if (squares[i].name === "Rook") {
+                        rookFirstMove = false;
+                    }
+
+                    this.setState({
+                        sourceSelection: -1,
+                        squares: squares,
+                        whiteFallenSoldiers: whiteFallenSoldiers,
+                        blackFallenSoldiers: blackFallenSoldiers,
+                        player: player,
+                        status: '',
+                        turn: turn,
+                        highLightMoves: [],
+                        rookFirstMove: rookFirstMove
                     });
                 } else {
                     this.setState({
