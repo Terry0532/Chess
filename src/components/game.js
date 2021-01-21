@@ -24,7 +24,7 @@ export default class Game extends React.Component {
 
     handleClick(i) {
         let squares = this.state.squares.slice();
-        const highLightMoves = this.state.highLightMoves.slice();
+        const highLightMoves = this.state.highLightMoves;
 
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
@@ -32,7 +32,7 @@ export default class Game extends React.Component {
                 squares[i] ? squares[i].style = { ...squares[i].style, backgroundColor: "" } : null;
             } else {
                 //highlight selected piece
-                squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
+                squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)"}; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
                 //highlight possible moves
                 let temp;
@@ -66,8 +66,8 @@ export default class Game extends React.Component {
             //dehighlight selected piece
             squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
 
-            const whiteFallenSoldiers = this.state.whiteFallenSoldiers.slice();
-            const blackFallenSoldiers = this.state.blackFallenSoldiers.slice();
+            const whiteFallenSoldiers = this.state.whiteFallenSoldiers;
+            const blackFallenSoldiers = this.state.blackFallenSoldiers;
 
             if (squares[this.state.sourceSelection].name === "Pawn") {
                 squares = this.dehighlight(squares);
@@ -76,9 +76,11 @@ export default class Game extends React.Component {
                     //if en passant is available and player decided to use it, else proceed without it
                     if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
                         if (squares[this.state.lastTurnPawnPosition].player === 1) {
+                            squares[this.state.lastTurnPawnPosition].style = { ...squares[this.state.lastTurnPawnPosition].style, borderColor: "transparent" };
                             whiteFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
                         }
                         else {
+                            squares[this.state.lastTurnPawnPosition].style = { ...squares[this.state.lastTurnPawnPosition].style, borderColor: "transparent" };
                             blackFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
                         }
                         squares[i] = squares[this.state.sourceSelection];
@@ -99,9 +101,11 @@ export default class Game extends React.Component {
                     } else {
                         if (squares[i] !== null) {
                             if (squares[i].player === 1) {
+                                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
                                 whiteFallenSoldiers.push(squares[i]);
                             }
                             else {
+                                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
                                 blackFallenSoldiers.push(squares[i]);
                             }
                         }
@@ -149,9 +153,11 @@ export default class Game extends React.Component {
                 if (this.state.highLightMoves.includes(i)) {
                     if (squares[i] !== null) {
                         if (squares[i].player === 1) {
+                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
                             whiteFallenSoldiers.push(squares[i]);
                         }
                         else {
+                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
                             blackFallenSoldiers.push(squares[i]);
                         }
                     }

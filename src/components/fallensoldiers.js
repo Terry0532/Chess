@@ -3,7 +3,7 @@ import "../index.css";
 import Square from "./square";
 
 export default class FallenSoldierBlock extends React.Component {
-    renderSquare(square, i, squareShade) {
+    renderSquare(square, i) {
         return <Square
             piece={square}
             style={square.style}
