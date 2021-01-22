@@ -22,16 +22,25 @@ export default class Game extends React.Component {
             highLightMoves: [],
             allPossibleMovesWhite: [],
             allPossibleMovesBlack: [],
-            kingFirstMove: true,
-            rookFirstMove: true
+            whiteKingFirstMove: true,
+            blackKingFirstMove: true,
+            whiteRookFirstMoveLeft: true,
+            whiteRookFirstMoveRight: true,
+            blackRookFirstMoveLeft: true,
+            blackRookFirstMoveRight: true
         }
     }
 
     handleClick(i) {
-        console.log(this.state.rookFirstMove)
         let squares = this.state.squares;
         const highLightMoves = this.state.highLightMoves;
 
+        console.log("left white rook: " + this.state.whiteRookFirstMoveLeft);
+        console.log("right white rook: " + this.state.whiteRookFirstMoveRight);
+        console.log("left black rook: " + this.state.blackRookFirstMoveLeft);
+        console.log("right black rook: " + this.state.blackRookFirstMoveRight);
+        console.log("white king: " + this.state.whiteKingFirstMove);
+        console.log("black king: " + this.state.blackKingFirstMove);
         for (let i = 0; i < this.state.squares.length; i++) {
             if (this.state.squares[i] !== null) {
                 if (this.state.squares[i].player === 1) {
@@ -98,6 +107,7 @@ export default class Game extends React.Component {
                 squares = this.dehighlight(squares);
                 const enpassant = this.enpassant(this.state.sourceSelection);
                 if (this.state.highLightMoves.includes(i)) {
+
                     //if en passant is available and player decided to use it, else proceed without it
                     if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
                         if (squares[this.state.lastTurnPawnPosition].player === 1) {
@@ -108,11 +118,16 @@ export default class Game extends React.Component {
                             squares[this.state.lastTurnPawnPosition].style = { ...squares[this.state.lastTurnPawnPosition].style, borderColor: "transparent" };
                             blackFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
                         }
+
+                        //move player selected piece to target position
                         squares[i] = squares[this.state.sourceSelection];
                         squares[this.state.lastTurnPawnPosition] = null;
                         squares[this.state.sourceSelection] = null;
+
+                        //change turn
                         let player = this.state.player === 1 ? 2 : 1;
                         let turn = this.state.turn === 'white' ? 'black' : 'white';
+
                         this.setState({
                             sourceSelection: -1,
                             squares: squares,
@@ -148,10 +163,14 @@ export default class Game extends React.Component {
                         //record current pawn position for next turn to check en passant rule
                         let lastTurnPawnPosition = i;
 
+                        //move player selected piece to target position
                         squares[i] = squares[this.state.sourceSelection];
                         squares[this.state.sourceSelection] = null;
+
+                        //change turn
                         let player = this.state.player === 1 ? 2 : 1;
                         let turn = this.state.turn === 'white' ? 'black' : 'white';
+
                         this.setState({
                             sourceSelection: -1,
                             squares: squares,
@@ -186,10 +205,25 @@ export default class Game extends React.Component {
                             blackFallenSoldiers.push(squares[i]);
                         }
                     }
+
+                    //move player selected piece to target position
                     squares[i] = squares[this.state.sourceSelection];
                     squares[this.state.sourceSelection] = null;
+
+                    //change turn
                     let player = this.state.player === 1 ? 2 : 1;
                     let turn = this.state.turn === 'white' ? 'black' : 'white';
+
+                    //to record king has been moved or not. for castling
+                    let whiteKingFirstMove = this.state.whiteKingFirstMove;
+                    let blackKingFirstMove = this.state.blackKingFirstMove;
+                    if (squares[i].name === "King" && this.state.sourceSelection === 60 && squares[i].player === 1) {
+                        whiteKingFirstMove = false;
+                    }
+                    if (squares[i].name === "King" && this.state.sourceSelection === 4 && squares[i].player === 2) {
+                        blackKingFirstMove = false;
+                    }
+
                     this.setState({
                         sourceSelection: -1,
                         squares: squares,
@@ -198,7 +232,9 @@ export default class Game extends React.Component {
                         player: player,
                         status: '',
                         turn: turn,
-                        highLightMoves: []
+                        highLightMoves: [],
+                        whiteKingFirstMove: whiteKingFirstMove,
+                        blackKingFirstMove: blackKingFirstMove
                     });
                 } else {
                     this.setState({
@@ -221,14 +257,30 @@ export default class Game extends React.Component {
                             blackFallenSoldiers.push(squares[i]);
                         }
                     }
+                    //move player selected piece to target position
                     squares[i] = squares[this.state.sourceSelection];
                     squares[this.state.sourceSelection] = null;
+
+                    //change turn
                     let player = this.state.player === 1 ? 2 : 1;
                     let turn = this.state.turn === 'white' ? 'black' : 'white';
 
-                    let rookFirstMove;
-                    if (squares[i].name === "Rook") {
-                        rookFirstMove = false;
+                    //to record if rook has been moved or not. for castling.
+                    let whiteRookFirstMoveLeft = this.state.whiteRookFirstMoveLeft;
+                    let whiteRookFirstMoveRight = this.state.whiteRookFirstMoveRight;
+                    let blackRookFirstMoveLeft = this.state.blackRookFirstMoveLeft;
+                    let blackRookFirstMoveRight = this.state.blackRookFirstMoveRight;
+                    if (squares[i].name === "Rook" && this.state.sourceSelection === 56 && squares[i].player === 1) {
+                        whiteRookFirstMoveLeft = false;
+                    }
+                    if (squares[i].name === "Rook" && this.state.sourceSelection === 63 && squares[i].player === 1) {
+                        whiteRookFirstMoveRight = false;
+                    }
+                    if (squares[i].name === "Rook" && this.state.sourceSelection === 0 && squares[i].player === 2) {
+                        blackRookFirstMoveLeft = false;
+                    }
+                    if (squares[i].name === "Rook" && this.state.sourceSelection === 7 && squares[i].player === 2) {
+                        blackRookFirstMoveRight = false;
                     }
 
                     this.setState({
@@ -240,7 +292,10 @@ export default class Game extends React.Component {
                         status: '',
                         turn: turn,
                         highLightMoves: [],
-                        rookFirstMove: rookFirstMove
+                        whiteRookFirstMoveLeft: whiteRookFirstMoveLeft,
+                        whiteRookFirstMoveRight: whiteRookFirstMoveRight,
+                        blackRookFirstMoveLeft: blackRookFirstMoveLeft,
+                        blackRookFirstMoveRight: blackRookFirstMoveRight
                     });
                 } else {
                     this.setState({
