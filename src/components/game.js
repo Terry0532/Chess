@@ -167,12 +167,7 @@ export default class Game extends React.Component {
                         });
                     }
                 } else {
-                    this.setState({
-                        status: "Wrong selection. Choose valid source and destination again.",
-                        sourceSelection: -1,
-                        squares: squares,
-                        highLightMoves: []
-                    });
+                    this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
                 }
             } else if (squares[this.state.sourceSelection].name === "King") {
                 squares = this.dehighlight(squares);
@@ -200,12 +195,7 @@ export default class Game extends React.Component {
                         blackKingFirstMove: blackKingFirstMove
                     });
                 } else {
-                    this.setState({
-                        status: "Wrong selection. Choose valid source and destination again.",
-                        sourceSelection: -1,
-                        highLightMoves: [],
-                        squares: squares
-                    });
+                    this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
                 }
             } else {
                 squares = this.dehighlight(squares);
@@ -243,12 +233,7 @@ export default class Game extends React.Component {
                         blackRookFirstMoveRight: blackRookFirstMoveRight
                     });
                 } else {
-                    this.setState({
-                        status: "Wrong selection. Choose valid source and destination again.",
-                        sourceSelection: -1,
-                        highLightMoves: [],
-                        squares: squares
-                    });
+                    this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
                 }
             }
         }
@@ -310,6 +295,16 @@ export default class Game extends React.Component {
             player: player,
             turn: turn
         })
+    }
+
+    //display message, and reset chess board
+    wrongMove(squares, status) {
+        this.setState({
+            status: status,
+            sourceSelection: -1,
+            highLightMoves: [],
+            squares: squares
+        });
     }
 
     render() {
