@@ -17,11 +17,15 @@ export default class Game extends React.Component {
             status: '',
             turn: 'white',
             lastTurnPawnPosition: undefined,
-            //pawn's first move and it moved 2 squares forward
+
+            //true === last turn enemy's pawn moved for the first time and it moved 2 squares forward. for en pasaant
             firstMove: undefined,
+
             highLightMoves: [],
             allPossibleMovesWhite: [],
             allPossibleMovesBlack: [],
+
+            //for castling
             whiteKingFirstMove: true,
             blackKingFirstMove: true,
             whiteRookFirstMoveLeft: true,
@@ -110,6 +114,8 @@ export default class Game extends React.Component {
 
                     //if en passant is available and player decided to use it, else proceed without it
                     if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
+
+                        //remove captured piece border color and add it to fallen soldier list
                         if (squares[this.state.lastTurnPawnPosition].player === 1) {
                             squares[this.state.lastTurnPawnPosition].style = { ...squares[this.state.lastTurnPawnPosition].style, borderColor: "transparent" };
                             whiteFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
@@ -124,32 +130,16 @@ export default class Game extends React.Component {
                         squares[this.state.lastTurnPawnPosition] = null;
                         squares[this.state.sourceSelection] = null;
 
-                        //change turn
-                        let player = this.state.player === 1 ? 2 : 1;
-                        let turn = this.state.turn === 'white' ? 'black' : 'white';
-
+                        this.changeTurn();
                         this.setState({
                             sourceSelection: -1,
                             squares: squares,
                             whiteFallenSoldiers: whiteFallenSoldiers,
                             blackFallenSoldiers: blackFallenSoldiers,
-                            player: player,
                             status: '',
-                            turn: turn,
                             highLightMoves: []
                         });
                     } else {
-                        if (squares[i] !== null) {
-                            if (squares[i].player === 1) {
-                                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
-                                whiteFallenSoldiers.push(squares[i]);
-                            }
-                            else {
-                                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
-                                blackFallenSoldiers.push(squares[i]);
-                            }
-                        }
-
                         //check if current pawn is moving for the first time and moving 2 squares forward
                         let firstMove;
                         if (squares[this.state.sourceSelection].name === "Pawn") {
@@ -163,22 +153,14 @@ export default class Game extends React.Component {
                         //record current pawn position for next turn to check en passant rule
                         let lastTurnPawnPosition = i;
 
-                        //move player selected piece to target position
-                        squares[i] = squares[this.state.sourceSelection];
-                        squares[this.state.sourceSelection] = null;
-
-                        //change turn
-                        let player = this.state.player === 1 ? 2 : 1;
-                        let turn = this.state.turn === 'white' ? 'black' : 'white';
+                        this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
+                        squares = this.movePiece(i, squares);
+                        this.changeTurn();
 
                         this.setState({
                             sourceSelection: -1,
                             squares: squares,
-                            whiteFallenSoldiers: whiteFallenSoldiers,
-                            blackFallenSoldiers: blackFallenSoldiers,
-                            player: player,
                             status: '',
-                            turn: turn,
                             firstMove: firstMove,
                             lastTurnPawnPosition: lastTurnPawnPosition,
                             highLightMoves: []
@@ -195,24 +177,9 @@ export default class Game extends React.Component {
             } else if (squares[this.state.sourceSelection].name === "King") {
                 squares = this.dehighlight(squares);
                 if (this.state.highLightMoves.includes(i)) {
-                    if (squares[i] !== null) {
-                        if (squares[i].player === 1) {
-                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
-                            whiteFallenSoldiers.push(squares[i]);
-                        }
-                        else {
-                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
-                            blackFallenSoldiers.push(squares[i]);
-                        }
-                    }
-
-                    //move player selected piece to target position
-                    squares[i] = squares[this.state.sourceSelection];
-                    squares[this.state.sourceSelection] = null;
-
-                    //change turn
-                    let player = this.state.player === 1 ? 2 : 1;
-                    let turn = this.state.turn === 'white' ? 'black' : 'white';
+                    this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
+                    squares = this.movePiece(i, squares);
+                    this.changeTurn();
 
                     //to record king has been moved or not. for castling
                     let whiteKingFirstMove = this.state.whiteKingFirstMove;
@@ -227,11 +194,7 @@ export default class Game extends React.Component {
                     this.setState({
                         sourceSelection: -1,
                         squares: squares,
-                        whiteFallenSoldiers: whiteFallenSoldiers,
-                        blackFallenSoldiers: blackFallenSoldiers,
-                        player: player,
                         status: '',
-                        turn: turn,
                         highLightMoves: [],
                         whiteKingFirstMove: whiteKingFirstMove,
                         blackKingFirstMove: blackKingFirstMove
@@ -247,23 +210,9 @@ export default class Game extends React.Component {
             } else {
                 squares = this.dehighlight(squares);
                 if (this.state.highLightMoves.includes(i)) {
-                    if (squares[i] !== null) {
-                        if (squares[i].player === 1) {
-                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
-                            whiteFallenSoldiers.push(squares[i]);
-                        }
-                        else {
-                            squares[i].style = { ...squares[i].style, borderColor: "transparent" };
-                            blackFallenSoldiers.push(squares[i]);
-                        }
-                    }
-                    //move player selected piece to target position
-                    squares[i] = squares[this.state.sourceSelection];
-                    squares[this.state.sourceSelection] = null;
-
-                    //change turn
-                    let player = this.state.player === 1 ? 2 : 1;
-                    let turn = this.state.turn === 'white' ? 'black' : 'white';
+                    this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
+                    squares = this.movePiece(i, squares);
+                    this.changeTurn();
 
                     //to record if rook has been moved or not. for castling.
                     let whiteRookFirstMoveLeft = this.state.whiteRookFirstMoveLeft;
@@ -286,11 +235,7 @@ export default class Game extends React.Component {
                     this.setState({
                         sourceSelection: -1,
                         squares: squares,
-                        whiteFallenSoldiers: whiteFallenSoldiers,
-                        blackFallenSoldiers: blackFallenSoldiers,
-                        player: player,
                         status: '',
-                        turn: turn,
                         highLightMoves: [],
                         whiteRookFirstMoveLeft: whiteRookFirstMoveLeft,
                         whiteRookFirstMoveRight: whiteRookFirstMoveRight,
@@ -331,6 +276,40 @@ export default class Game extends React.Component {
             }
         }
         return squares;
+    }
+
+    //remove captured piece border color and add it to fallen soldier list
+    addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers) {
+        if (squares[i] !== null) {
+            if (squares[i].player === 1) {
+                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
+                whiteFallenSoldiers.push(squares[i]);
+            }
+            else {
+                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
+                blackFallenSoldiers.push(squares[i]);
+            }
+        }
+        this.setState({
+            whiteFallenSoldiers: whiteFallenSoldiers,
+            blackFallenSoldiers: blackFallenSoldiers
+        })
+    }
+
+    //move player selected piece to target position
+    movePiece(i, squares) {
+        squares[i] = squares[this.state.sourceSelection];
+        squares[this.state.sourceSelection] = null;
+        return squares;
+    }
+
+    changeTurn() {
+        let player = this.state.player === 1 ? 2 : 1;
+        let turn = this.state.turn === 'white' ? 'black' : 'white';
+        this.setState({
+            player: player,
+            turn: turn
+        })
     }
 
     render() {
