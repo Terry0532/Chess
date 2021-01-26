@@ -54,29 +54,49 @@ export default class Pawn extends Piece {
         return highLightMoves;
     }
 
-    possibleCaptureMoves(src) {
+    possibleCaptureMoves(src, squares) {
         const moves = [];
         if (this.player === 1) {
-            if (src % 8 !== 0 && (src + 1) % 8 !== 0) {
+            if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src - 9] === null) {
                 moves.push((src - 9));
+            } else if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src - 9].player === 2) {
+                moves.push((src - 9));
+            }
+            if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src - 7] === null) {
+                moves.push((src - 7));
+            } else if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src - 7].player === 2) {
                 moves.push((src - 7));
             }
-            if (src % 8 === 0) {
+            if (src % 8 === 0 && squares[src - 7] === null) {
+                moves.push((src - 7));
+            } else if (src % 8 === 0 && squares[src - 7].player === 2) {
                 moves.push((src - 7));
             }
-            if ((src + 1) % 8 === 0) {
+            if ((src + 1) % 8 === 0 && squares[src - 9] === null) {
+                moves.push((src - 9));
+            } else if ((src + 1) % 8 === 0 && squares[src - 9].player === 2) {
                 moves.push((src - 9));
             }
         }
         if (this.player === 2) {
-            if (src % 8 !== 0 && (src + 1) % 8 !== 0) {
+            if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src + 9] === null) {
                 moves.push((src + 9));
+            } else if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src + 9].player === 1) {
+                moves.push((src + 9));
+            }
+            if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src + 7] === null) {
+                moves.push((src + 7));
+            } else if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src + 7].player === 1) {
                 moves.push((src + 7));
             }
-            if (src % 8 === 0) {
+            if (src % 8 === 0 && squares[src + 9] === null) {
+                moves.push((src + 9));
+            } else if (src % 8 === 0 && squares[src + 9].player === 1) {
                 moves.push((src + 9));
             }
-            if ((src + 1) % 8 === 0) {
+            if ((src + 1) % 8 === 0 && squares[src + 7] === null) {
+                moves.push((src + 7));
+            } else if ((src + 1) % 8 === 0 && squares[src + 7].player === 1) {
                 moves.push((src + 7));
             }
         }

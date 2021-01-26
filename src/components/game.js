@@ -114,6 +114,10 @@ export default class Game extends React.Component {
                         squares[this.state.lastTurnPawnPosition] = null;
                         squares[this.state.sourceSelection] = null;
 
+                        //update the possible moves in order to check if next player can caslting or not
+                        const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
+                        const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
+
                         this.changeTurn();
                         this.setState({
                             sourceSelection: -1,
@@ -121,7 +125,9 @@ export default class Game extends React.Component {
                             whiteFallenSoldiers: whiteFallenSoldiers,
                             blackFallenSoldiers: blackFallenSoldiers,
                             status: '',
-                            highLightMoves: []
+                            highLightMoves: [],
+                            allPossibleMovesWhite: allPossibleMovesWhite,
+                            allPossibleMovesBlack: allPossibleMovesBlack
                         });
                     } else {
                         //check if current pawn is moving for the first time and moving 2 squares forward
