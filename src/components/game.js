@@ -23,7 +23,7 @@ export default class Game extends React.Component {
 
             highLightMoves: [],
 
-            //for castling
+            //for castle
             allPossibleMovesWhite: [],
             allPossibleMovesBlack: [],
             whiteKingFirstMove: true,
@@ -39,14 +39,14 @@ export default class Game extends React.Component {
         let squares = this.state.squares;
         const highLightMoves = this.state.highLightMoves;
 
-        console.log("left white rook: " + this.state.whiteRookFirstMoveLeft);
-        console.log("right white rook: " + this.state.whiteRookFirstMoveRight);
-        console.log("left black rook: " + this.state.blackRookFirstMoveLeft);
-        console.log("right black rook: " + this.state.blackRookFirstMoveRight);
-        console.log("white king: " + this.state.whiteKingFirstMove);
-        console.log("black king: " + this.state.blackKingFirstMove);
-        console.log("white possible moves: " + this.state.allPossibleMovesWhite)
-        console.log("black possible moves: " + this.state.allPossibleMovesBlack)
+        // console.log("left white rook: " + this.state.whiteRookFirstMoveLeft);
+        // console.log("right white rook: " + this.state.whiteRookFirstMoveRight);
+        // console.log("left black rook: " + this.state.blackRookFirstMoveLeft);
+        // console.log("right black rook: " + this.state.blackRookFirstMoveRight);
+        // console.log("white king: " + this.state.whiteKingFirstMove);
+        // console.log("black king: " + this.state.blackKingFirstMove);
+        // console.log("white possible moves: " + this.state.allPossibleMovesWhite);
+        // console.log("black possible moves: " + this.state.allPossibleMovesBlack);
 
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
@@ -55,6 +55,49 @@ export default class Game extends React.Component {
             } else {
                 //highlight selected piece
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
+
+                //check if castle is possible
+                if (this.state.turn === "white" && this.state.whiteKingFirstMove) {
+                    if (
+                        this.state.whiteRookFirstMoveLeft &&
+                        squares[57] === null &&
+                        squares[58] === null &&
+                        squares[59] === null &&
+                        !this.state.allPossibleMovesBlack.some(element => [57, 58, 59].includes(element))
+                    ) {
+                        console.log("white left castle possible");
+                        highLightMoves.push(58);
+                    }
+                    if (
+                        this.state.whiteRookFirstMoveRight &&
+                        squares[61] === null &&
+                        squares[62] === null &&
+                        !this.state.allPossibleMovesBlack.some(element => [61, 62].includes(element))
+                    ) {
+                        console.log("white right castle possible");
+                        highLightMoves.push(62);
+                    }
+                } else if (this.state.blackKingFirstMove) {
+                    if (
+                        this.state.blackRookFirstMoveLeft &&
+                        squares[1] &&
+                        squares[2] &&
+                        squares[3] &&
+                        !this.state.allPossibleMovesWhite.some(element => [1, 2, 3].includes(element))
+                    ) {
+                        console.log("black left castle possible");
+                        highLightMoves.push(2);
+                    }
+                    if (
+                        this.state.blackRookFirstMoveRight &&
+                        squares[5] &&
+                        squares[6] &&
+                        !this.state.allPossibleMovesWhite.some(element => [5, 6].includes(element))
+                    ) {
+                        console.log("black right castle possible");
+                        highLightMoves.push(6);
+                    }
+                }
 
                 //highlight possible moves
                 let temp;
@@ -114,7 +157,7 @@ export default class Game extends React.Component {
                         squares[this.state.lastTurnPawnPosition] = null;
                         squares[this.state.sourceSelection] = null;
 
-                        //update the possible moves in order to check if next player can caslting or not
+                        //update the possible moves in order to check if next player can castle or not
                         const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
                         const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
 
@@ -147,7 +190,7 @@ export default class Game extends React.Component {
                         squares = this.movePiece(i, squares);
                         this.changeTurn();
 
-                        //update the possible moves in order to check if next player can caslting or not
+                        //update the possible moves in order to check if next player can castle or not
                         const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
                         const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
 
@@ -167,12 +210,13 @@ export default class Game extends React.Component {
                 }
             } else if (squares[this.state.sourceSelection].name === "King") {
                 squares = this.dehighlight(squares);
+
                 if (this.state.highLightMoves.includes(i)) {
                     this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                     squares = this.movePiece(i, squares);
                     this.changeTurn();
 
-                    //to record king has been moved or not. for castling
+                    //to record king has been moved or not. for castle
                     let whiteKingFirstMove = this.state.whiteKingFirstMove;
                     let blackKingFirstMove = this.state.blackKingFirstMove;
                     if (squares[i].name === "King" && this.state.sourceSelection === 60 && squares[i].player === 1) {
@@ -200,7 +244,7 @@ export default class Game extends React.Component {
                     squares = this.movePiece(i, squares);
                     this.changeTurn();
 
-                    //to record if rook has been moved or not. for castling.
+                    //to record if rook has been moved or not. for castle.
                     let whiteRookFirstMoveLeft = this.state.whiteRookFirstMoveLeft;
                     let whiteRookFirstMoveRight = this.state.whiteRookFirstMoveRight;
                     let blackRookFirstMoveLeft = this.state.blackRookFirstMoveLeft;
@@ -218,7 +262,7 @@ export default class Game extends React.Component {
                         blackRookFirstMoveRight = false;
                     }
 
-                    //update the possible moves in order to check if next player can caslting or not
+                    //update the possible moves in order to check if next player can castle or not
                     const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
                     const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
 
