@@ -22,10 +22,10 @@ export default class Game extends React.Component {
             firstMove: undefined,
 
             highLightMoves: [],
-            allPossibleMovesWhite: [],
-            allPossibleMovesBlack: [],
 
             //for castling
+            allPossibleMovesWhite: [],
+            allPossibleMovesBlack: [],
             whiteKingFirstMove: true,
             blackKingFirstMove: true,
             whiteRookFirstMoveLeft: true,
@@ -45,24 +45,8 @@ export default class Game extends React.Component {
         console.log("right black rook: " + this.state.blackRookFirstMoveRight);
         console.log("white king: " + this.state.whiteKingFirstMove);
         console.log("black king: " + this.state.blackKingFirstMove);
-        for (let i = 0; i < this.state.squares.length; i++) {
-            if (this.state.squares[i] !== null) {
-                if (this.state.squares[i].player === 1) {
-                    if (this.state.squares[i].name === "Pawn") {
-                        let tempArray = this.state.squares[i].possibleCaptureMoves(i, this.state.squares);
-                        for (let i = 0; i < tempArray.length; i++) {
-                            this.state.allPossibleMovesWhite.push(tempArray[i]);
-                        }
-                    } else {
-                        let tempArray = this.state.squares[i].possibleMoves(i, this.state.squares);
-                        for (let i = 0; i < tempArray.length; i++) {
-                            this.state.allPossibleMovesWhite.push(tempArray[i]);
-                        }
-                    }
-                }
-            }
-        }
-        console.log(this.state.allPossibleMovesWhite.sort());
+        console.log("white possible moves: " + this.state.allPossibleMovesWhite)
+        console.log("black possible moves: " + this.state.allPossibleMovesBlack)
 
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
@@ -110,8 +94,8 @@ export default class Game extends React.Component {
             if (squares[this.state.sourceSelection].name === "Pawn") {
                 squares = this.dehighlight(squares);
                 const enpassant = this.enpassant(this.state.sourceSelection);
-                if (this.state.highLightMoves.includes(i)) {
 
+                if (this.state.highLightMoves.includes(i)) {
                     //if en passant is available and player decided to use it, else proceed without it
                     if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
 
@@ -157,13 +141,19 @@ export default class Game extends React.Component {
                         squares = this.movePiece(i, squares);
                         this.changeTurn();
 
+                        //update the possible moves in order to check if next player can caslting or not
+                        const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
+                        const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
+
                         this.setState({
                             sourceSelection: -1,
                             squares: squares,
                             status: '',
                             firstMove: firstMove,
                             lastTurnPawnPosition: lastTurnPawnPosition,
-                            highLightMoves: []
+                            highLightMoves: [],
+                            allPossibleMovesWhite: allPossibleMovesWhite,
+                            allPossibleMovesBlack: allPossibleMovesBlack
                         });
                     }
                 } else {
@@ -222,6 +212,10 @@ export default class Game extends React.Component {
                         blackRookFirstMoveRight = false;
                     }
 
+                    //update the possible moves in order to check if next player can caslting or not
+                    const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
+                    const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
+
                     this.setState({
                         sourceSelection: -1,
                         squares: squares,
@@ -230,7 +224,9 @@ export default class Game extends React.Component {
                         whiteRookFirstMoveLeft: whiteRookFirstMoveLeft,
                         whiteRookFirstMoveRight: whiteRookFirstMoveRight,
                         blackRookFirstMoveLeft: blackRookFirstMoveLeft,
-                        blackRookFirstMoveRight: blackRookFirstMoveRight
+                        blackRookFirstMoveRight: blackRookFirstMoveRight,
+                        allPossibleMovesWhite: allPossibleMovesWhite,
+                        allPossibleMovesBlack: allPossibleMovesBlack
                     });
                 } else {
                     this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
@@ -305,6 +301,64 @@ export default class Game extends React.Component {
             highLightMoves: [],
             squares: squares
         });
+    }
+
+    //give it the current chess board and return the possible moves
+    allPossibleMovesWhite(squares) {
+        const allPossibleMovesWhite = [];
+        for (let i = 0; i < squares.length; i++) {
+            if (squares[i] !== null) {
+                if (squares[i].player === 1) {
+                    if (squares[i].name === "Pawn") {
+                        let tempArray = squares[i].possibleCaptureMoves(i, squares);
+                        for (let i = 0; i < tempArray.length; i++) {
+                            allPossibleMovesWhite.push(tempArray[i]);
+                        }
+                    } else {
+                        let tempArray = squares[i].possibleMoves(i, squares);
+                        for (let i = 0; i < tempArray.length; i++) {
+                            allPossibleMovesWhite.push(tempArray[i]);
+                        }
+                    }
+                }
+            }
+        }
+        allPossibleMovesWhite.sort();
+        const temp = [];
+        for (let i = 0; i < allPossibleMovesWhite.length; i++) {
+            if (allPossibleMovesWhite[i] !== allPossibleMovesWhite[i + 1]) {
+                temp.push(allPossibleMovesWhite[i]);
+            }
+        }
+        return temp;
+    }
+    allPossibleMovesBlack(squares) {
+        const allPossibleMovesBlack = [];
+        for (let i = 0; i < squares.length; i++) {
+            if (squares[i] !== null) {
+                if (squares[i].player === 2) {
+                    if (squares[i].name === "Pawn") {
+                        let tempArray = squares[i].possibleCaptureMoves(i, squares);
+                        for (let i = 0; i < tempArray.length; i++) {
+                            allPossibleMovesBlack.push(tempArray[i]);
+                        }
+                    } else {
+                        let tempArray = squares[i].possibleMoves(i, squares);
+                        for (let i = 0; i < tempArray.length; i++) {
+                            allPossibleMovesBlack.push(tempArray[i]);
+                        }
+                    }
+                }
+            }
+        }
+        allPossibleMovesBlack.sort();
+        const temp = [];
+        for (let i = 0; i < allPossibleMovesBlack.length; i++) {
+            if (allPossibleMovesBlack[i] !== allPossibleMovesBlack[i + 1]) {
+                temp.push(allPossibleMovesBlack[i]);
+            }
+        }
+        return temp;
     }
 
     render() {
