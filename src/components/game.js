@@ -39,15 +39,6 @@ export default class Game extends React.Component {
         let squares = this.state.squares;
         const highLightMoves = this.state.highLightMoves;
 
-        // console.log("left white rook: " + this.state.whiteRookFirstMoveLeft);
-        // console.log("right white rook: " + this.state.whiteRookFirstMoveRight);
-        // console.log("left black rook: " + this.state.blackRookFirstMoveLeft);
-        // console.log("right black rook: " + this.state.blackRookFirstMoveRight);
-        // console.log("white king: " + this.state.whiteKingFirstMove);
-        // console.log("black king: " + this.state.blackKingFirstMove);
-        // console.log("white possible moves: " + this.state.allPossibleMovesWhite);
-        // console.log("black possible moves: " + this.state.allPossibleMovesBlack);
-
         if (this.state.sourceSelection === -1) {
             if (!squares[i] || squares[i].player !== this.state.player) {
                 this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
@@ -65,7 +56,6 @@ export default class Game extends React.Component {
                         squares[59] === null &&
                         !this.state.allPossibleMovesBlack.some(element => [57, 58, 59].includes(element))
                     ) {
-                        console.log("white left castle possible");
                         highLightMoves.push(58);
                     }
                     if (
@@ -74,27 +64,24 @@ export default class Game extends React.Component {
                         squares[62] === null &&
                         !this.state.allPossibleMovesBlack.some(element => [61, 62].includes(element))
                     ) {
-                        console.log("white right castle possible");
                         highLightMoves.push(62);
                     }
                 } else if (this.state.blackKingFirstMove) {
                     if (
                         this.state.blackRookFirstMoveLeft &&
-                        squares[1] &&
-                        squares[2] &&
-                        squares[3] &&
+                        squares[1] === null &&
+                        squares[2] === null &&
+                        squares[3] === null &&
                         !this.state.allPossibleMovesWhite.some(element => [1, 2, 3].includes(element))
                     ) {
-                        console.log("black left castle possible");
                         highLightMoves.push(2);
                     }
                     if (
                         this.state.blackRookFirstMoveRight &&
-                        squares[5] &&
-                        squares[6] &&
+                        squares[5] === null &&
+                        squares[6] === null &&
                         !this.state.allPossibleMovesWhite.some(element => [5, 6].includes(element))
                     ) {
-                        console.log("black right castle possible");
                         highLightMoves.push(6);
                     }
                 }
@@ -104,15 +91,35 @@ export default class Game extends React.Component {
                 if (squares[i].name === "Pawn") {
                     const enpassant = this.enpassant(i);
                     temp = squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition);
+                } else if (squares[i].name === "King") {
+                    temp = squares[i].possibleMoves(i, squares);
+
+                    //make sure they don't move king into opponent's piece's square
+                    let temp2 = [];
+                    if (
+                        (squares[i].player === 1 && this.state.allPossibleMovesBlack.some(element => temp.includes(element))) ||
+                        (squares[i].player === 2 && this.state.allPossibleMovesWhite.some(element => temp.includes(element)))
+                    ) {
+                        let allPossibleMoves = this.state.player === 1 ? this.state.allPossibleMovesBlack : this.state.allPossibleMovesWhite;
+                        for (let i = 0; i < temp.length; i++) {
+                            let counter = 0;
+                            for (let x = 0; x < allPossibleMoves.length; x++) {
+                                if (temp[i] !== allPossibleMoves[x]) {
+                                    counter++;
+                                }
+                            }
+                            if (counter === allPossibleMoves.length) {
+                                temp2.push(temp[i]);
+                            }
+                        }
+                        temp = temp2;
+                    }
+
                 } else {
                     temp = squares[i].possibleMoves(i, squares);
                 }
                 for (let index = 0; index < temp.length; index++) {
                     const element = temp[index];
-                    highLightMoves.push(element);
-                }
-                for (let index = 0; index < highLightMoves.length; index++) {
-                    const element = highLightMoves[index];
                     if (squares[element] !== null) {
                         squares[element].style = { ...squares[element].style, backgroundColor: "RGB(111,143,114)" };
                     } else {
@@ -124,10 +131,11 @@ export default class Game extends React.Component {
                     squares: squares,
                     status: "Choose destination for the selected piece",
                     sourceSelection: i,
-                    highLightMoves: highLightMoves
+                    highLightMoves: temp
                 });
             }
         } else if (this.state.sourceSelection > -1) {
+
             //dehighlight selected piece
             squares[this.state.sourceSelection].style = { ...squares[this.state.sourceSelection].style, backgroundColor: "" };
 
