@@ -48,41 +48,43 @@ export default class Game extends React.Component {
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
                 //check if castle is possible
-                if (this.state.turn === "white" && this.state.whiteKingFirstMove) {
-                    if (
-                        this.state.whiteRookFirstMoveLeft &&
-                        squares[57] === null &&
-                        squares[58] === null &&
-                        squares[59] === null &&
-                        !this.state.allPossibleMovesBlack.some(element => [57, 58, 59].includes(element))
-                    ) {
-                        temp.push(58);
-                    }
-                    if (
-                        this.state.whiteRookFirstMoveRight &&
-                        squares[61] === null &&
-                        squares[62] === null &&
-                        !this.state.allPossibleMovesBlack.some(element => [61, 62].includes(element))
-                    ) {
-                        temp.push(62);
-                    }
-                } else if (this.state.blackKingFirstMove) {
-                    if (
-                        this.state.blackRookFirstMoveLeft &&
-                        squares[1] === null &&
-                        squares[2] === null &&
-                        squares[3] === null &&
-                        !this.state.allPossibleMovesWhite.some(element => [1, 2, 3].includes(element))
-                    ) {
-                        temp.push(2);
-                    }
-                    if (
-                        this.state.blackRookFirstMoveRight &&
-                        squares[5] === null &&
-                        squares[6] === null &&
-                        !this.state.allPossibleMovesWhite.some(element => [5, 6].includes(element))
-                    ) {
-                        temp.push(6);
+                if (i === 4 || i === 60) {
+                    if (this.state.turn === "white" && this.state.whiteKingFirstMove) {
+                        if (
+                            this.state.whiteRookFirstMoveLeft &&
+                            squares[57] === null &&
+                            squares[58] === null &&
+                            squares[59] === null &&
+                            !this.state.allPossibleMovesBlack.some(element => [57, 58, 59].includes(element))
+                        ) {
+                            temp.push(58);
+                        }
+                        if (
+                            this.state.whiteRookFirstMoveRight &&
+                            squares[61] === null &&
+                            squares[62] === null &&
+                            !this.state.allPossibleMovesBlack.some(element => [61, 62].includes(element))
+                        ) {
+                            temp.push(62);
+                        }
+                    } else if (this.state.blackKingFirstMove) {
+                        if (
+                            this.state.blackRookFirstMoveLeft &&
+                            squares[1] === null &&
+                            squares[2] === null &&
+                            squares[3] === null &&
+                            !this.state.allPossibleMovesWhite.some(element => [1, 2, 3].includes(element))
+                        ) {
+                            temp.push(2);
+                        }
+                        if (
+                            this.state.blackRookFirstMoveRight &&
+                            squares[5] === null &&
+                            squares[6] === null &&
+                            !this.state.allPossibleMovesWhite.some(element => [5, 6].includes(element))
+                        ) {
+                            temp.push(6);
+                        }
                     }
                 }
 
