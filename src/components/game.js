@@ -468,15 +468,24 @@ export default class Game extends React.Component {
 
     //to check if selected piece can move or not, e.g., if they move seleced piece and it will end up in checkmate
     checkMoves(squares, highLightMoves, possibleMoves, i) {
-        let temp = squares.concat();
-        temp[i] = null;
+        let selectedPiece = i;
         if (this.state.turn === "white") {
-            if (!this.allPossibleMovesBlack(temp).includes(this.state.whiteKingPosition)) {
-                highLightMoves = highLightMoves.concat(possibleMoves);
+            for (let i = 0; i < possibleMoves.length; i++) {
+                let temp = squares.concat();
+                temp[possibleMoves[i]] = temp[selectedPiece];
+                temp[selectedPiece] = null;
+                if (!this.allPossibleMovesBlack(temp).includes(this.state.whiteKingPosition)) {
+                    highLightMoves.push(possibleMoves[i]);
+                }
             }
         } else if (this.state.turn === "black") {
-            if (!this.allPossibleMovesWhite(temp).includes(this.state.blackKingPosition)) {
-                highLightMoves = highLightMoves.concat(possibleMoves);
+            for (let i = 0; i < possibleMoves.length; i++) {
+                let temp = squares.concat();
+                temp[possibleMoves[i]] = temp[selectedPiece];
+                temp[selectedPiece] = null;
+                if (!this.allPossibleMovesWhite(temp).includes(this.state.blackKingPosition)) {
+                    highLightMoves.push(possibleMoves[i]);
+                }
             }
         }
         return highLightMoves;
