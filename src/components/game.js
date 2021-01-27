@@ -42,7 +42,7 @@ export default class Game extends React.Component {
         let squares = this.state.squares;
 
         if (this.state.sourceSelection === -1) {
-            let temp = [];
+            let highLightMoves = [];
             if (!squares[i] || squares[i].player !== this.state.player) {
                 this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
                 squares[i] ? squares[i].style = { ...squares[i].style, backgroundColor: "" } : null;
@@ -50,7 +50,7 @@ export default class Game extends React.Component {
                 //highlight selected piece
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
-                //check if castle is possible and add possible moves to highlightmoves[]
+                //check if castle is possible and add possible moves to highLightMoves array
                 if (i === 4 || i === 60) {
                     if (this.state.turn === "white" && this.state.whiteKingFirstMove) {
                         if (
@@ -60,7 +60,7 @@ export default class Game extends React.Component {
                             squares[59] === null &&
                             !this.state.allPossibleMovesBlack.some(element => [57, 58, 59].includes(element))
                         ) {
-                            temp.push(58);
+                            highLightMoves.push(58);
                         }
                         if (
                             this.state.whiteRookFirstMoveRight &&
@@ -68,7 +68,7 @@ export default class Game extends React.Component {
                             squares[62] === null &&
                             !this.state.allPossibleMovesBlack.some(element => [61, 62].includes(element))
                         ) {
-                            temp.push(62);
+                            highLightMoves.push(62);
                         }
                     } else if (this.state.blackKingFirstMove) {
                         if (
@@ -78,7 +78,7 @@ export default class Game extends React.Component {
                             squares[3] === null &&
                             !this.state.allPossibleMovesWhite.some(element => [1, 2, 3].includes(element))
                         ) {
-                            temp.push(2);
+                            highLightMoves.push(2);
                         }
                         if (
                             this.state.blackRookFirstMoveRight &&
@@ -86,7 +86,7 @@ export default class Game extends React.Component {
                             squares[6] === null &&
                             !this.state.allPossibleMovesWhite.some(element => [5, 6].includes(element))
                         ) {
-                            temp.push(6);
+                            highLightMoves.push(6);
                         }
                     }
                 }
@@ -94,44 +94,38 @@ export default class Game extends React.Component {
                 //highlight possible moves
                 if (squares[i].name === "Pawn") {
                     const enpassant = this.enpassant(i);
-                    temp = temp.concat(squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition));
-
-                    let temp2 = squares.concat();
-                    temp2[i] = null;
-                    if (this.state.turn === "white") {
-                        console.log(this.allPossibleMovesBlack(temp2))
-                    } else {
-
-                    }
+                    let possibleMoves = squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition);
+                    highLightMoves = this.checkMoves(squares, highLightMoves, possibleMoves, i);
                 } else if (squares[i].name === "King") {
-                    temp = temp.concat(squares[i].possibleMoves(i, squares));
+                    highLightMoves = highLightMoves.concat(squares[i].possibleMoves(i, squares));
 
                     //make sure player don't move king into opponent's piece's square
-                    let temp2 = [];
+                    let temp = [];
                     if (
-                        (squares[i].player === 1 && this.state.allPossibleMovesBlack.some(element => temp.includes(element))) ||
-                        (squares[i].player === 2 && this.state.allPossibleMovesWhite.some(element => temp.includes(element)))
+                        (squares[i].player === 1 && this.state.allPossibleMovesBlack.some(element => highLightMoves.includes(element))) ||
+                        (squares[i].player === 2 && this.state.allPossibleMovesWhite.some(element => highLightMoves.includes(element)))
                     ) {
                         let allPossibleMoves = this.state.player === 1 ? this.state.allPossibleMovesBlack : this.state.allPossibleMovesWhite;
-                        for (let i = 0; i < temp.length; i++) {
+                        for (let i = 0; i < highLightMoves.length; i++) {
                             let counter = 0;
                             for (let x = 0; x < allPossibleMoves.length; x++) {
-                                if (temp[i] !== allPossibleMoves[x]) {
+                                if (highLightMoves[i] !== allPossibleMoves[x]) {
                                     counter++;
                                 }
                             }
                             if (counter === allPossibleMoves.length) {
-                                temp2.push(temp[i]);
+                                temp.push(highLightMoves[i]);
                             }
                         }
-                        temp = temp2;
+                        highLightMoves = temp;
                     }
 
                 } else {
-                    temp = temp.concat(squares[i].possibleMoves(i, squares));
+                    let possibleMoves = squares[i].possibleMoves(i, squares);
+                    highLightMoves = this.checkMoves(squares, highLightMoves, possibleMoves, i);
                 }
-                for (let index = 0; index < temp.length; index++) {
-                    const element = temp[index];
+                for (let index = 0; index < highLightMoves.length; index++) {
+                    const element = highLightMoves[index];
                     if (squares[element] !== null) {
                         squares[element].style = { ...squares[element].style, backgroundColor: "RGB(111,143,114)" };
                     } else {
@@ -143,7 +137,7 @@ export default class Game extends React.Component {
                     squares: squares,
                     status: "Choose destination for the selected piece",
                     sourceSelection: i,
-                    highLightMoves: temp
+                    highLightMoves: highLightMoves
                 });
             }
         } else if (this.state.sourceSelection > -1) {
@@ -470,6 +464,22 @@ export default class Game extends React.Component {
             whiteKingPosition: whiteKingPosition,
             blackKingPosition: blackKingPosition
         })
+    }
+
+    //to check if selected piece can move or not, e.g., if they move seleced piece and it will end up in checkmate
+    checkMoves(squares, highLightMoves, possibleMoves, i) {
+        let temp = squares.concat();
+        temp[i] = null;
+        if (this.state.turn === "white") {
+            if (!this.allPossibleMovesBlack(temp).includes(this.state.whiteKingPosition)) {
+                highLightMoves = highLightMoves.concat(possibleMoves);
+            }
+        } else if (this.state.turn === "black") {
+            if (!this.allPossibleMovesWhite(temp).includes(this.state.blackKingPosition)) {
+                highLightMoves = highLightMoves.concat(possibleMoves);
+            }
+        }
+        return highLightMoves;
     }
 
     render() {
