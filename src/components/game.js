@@ -31,7 +31,10 @@ export default class Game extends React.Component {
             whiteRookFirstMoveLeft: true,
             whiteRookFirstMoveRight: true,
             blackRookFirstMoveLeft: true,
-            blackRookFirstMoveRight: true
+            blackRookFirstMoveRight: true,
+
+            whiteKingPosition: 60,
+            blackKingPosition: 4
         }
     }
 
@@ -47,7 +50,7 @@ export default class Game extends React.Component {
                 //highlight selected piece
                 squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
 
-                //check if castle is possible
+                //check if castle is possible and add possible moves to highlightmoves[]
                 if (i === 4 || i === 60) {
                     if (this.state.turn === "white" && this.state.whiteKingFirstMove) {
                         if (
@@ -92,8 +95,17 @@ export default class Game extends React.Component {
                 if (squares[i].name === "Pawn") {
                     const enpassant = this.enpassant(i);
                     temp = temp.concat(squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition));
+
+                    let temp2 = squares.concat();
+                    temp2[i] = null;
+                    if (this.state.turn === "white") {
+                        console.log(this.allPossibleMovesBlack(temp2))
+                    } else {
+
+                    }
                 } else if (squares[i].name === "King") {
                     temp = temp.concat(squares[i].possibleMoves(i, squares));
+
                     //make sure player don't move king into opponent's piece's square
                     let temp2 = [];
                     if (
@@ -217,7 +229,8 @@ export default class Game extends React.Component {
                 }
             } else if (squares[this.state.sourceSelection].name === "King") {
                 squares = this.dehighlight(squares);
-                //castling
+
+                //for castling
                 if (this.state.highLightMoves.includes(i) && (i === 2 || i === 6 || i === 58 || i === 62)) {
                     if (i === 58) {
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
@@ -235,8 +248,8 @@ export default class Game extends React.Component {
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
                         squares = this.movePiece(5, squares, 7);
                     }
+                    this.kingPosition(i);
                     this.changeTurn();
-
                     this.setState({
                         sourceSelection: -1,
                         squares: squares,
@@ -246,6 +259,7 @@ export default class Game extends React.Component {
                 } else if (this.state.highLightMoves.includes(i)) {
                     this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                     squares = this.movePiece(i, squares, this.state.sourceSelection);
+                    this.kingPosition(i);
                     this.changeTurn();
 
                     //to record king has been moved or not. for castle
@@ -406,13 +420,13 @@ export default class Game extends React.Component {
             }
         }
         allPossibleMovesWhite.sort();
-        const temp = [];
+        const result = [];
         for (let i = 0; i < allPossibleMovesWhite.length; i++) {
             if (allPossibleMovesWhite[i] !== allPossibleMovesWhite[i + 1]) {
-                temp.push(allPossibleMovesWhite[i]);
+                result.push(allPossibleMovesWhite[i]);
             }
         }
-        return temp;
+        return result;
     }
     allPossibleMovesBlack(squares) {
         const allPossibleMovesBlack = [];
@@ -441,6 +455,21 @@ export default class Game extends React.Component {
             }
         }
         return temp;
+    }
+
+    //record king position
+    kingPosition(i) {
+        let whiteKingPosition = this.state.whiteKingPosition;
+        let blackKingPosition = this.state.blackKingPosition;
+        if (this.state.turn === "white") {
+            whiteKingPosition = i;
+        } else if (this.state.turn === "black") {
+            blackKingPosition = i;
+        }
+        this.setState({
+            whiteKingPosition: whiteKingPosition,
+            blackKingPosition: blackKingPosition
+        })
     }
 
     render() {
