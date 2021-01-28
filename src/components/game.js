@@ -42,6 +42,8 @@ export default class Game extends React.Component {
         let squares = this.state.squares;
 
         if (this.state.sourceSelection === -1) {
+            console.log(this.state.blackKingFirstMove)
+            console.log(this.state.whiteKingFirstMove)
             let highLightMoves = [];
             if (!squares[i] || squares[i].player !== this.state.player) {
                 this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
@@ -98,6 +100,7 @@ export default class Game extends React.Component {
                     highLightMoves = this.checkMoves(squares, highLightMoves, possibleMoves, i);
                 } else if (squares[i].name === "King") {
                     highLightMoves = highLightMoves.concat(squares[i].possibleMoves(i, squares));
+                    console.log(highLightMoves)
 
                     //make sure player don't move king into opponent's piece's square
                     let temp = [];
@@ -225,7 +228,7 @@ export default class Game extends React.Component {
                 squares = this.dehighlight(squares);
 
                 //for castling
-                if (this.state.highLightMoves.includes(i) && (i === 2 || i === 6 || i === 58 || i === 62)) {
+                if (this.state.highLightMoves.includes(i) && (i === 2 || i === 6 || i === 58 || i === 62) && (this.state.whiteKingFirstMove || this.state.blackKingFirstMove)) {
                     if (i === 58) {
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
                         squares = this.movePiece(59, squares, 56);
@@ -242,15 +245,29 @@ export default class Game extends React.Component {
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
                         squares = this.movePiece(5, squares, 7);
                     }
+
+                    //to record king has been moved or not. for castle
+                    let whiteKingFirstMove = this.state.whiteKingFirstMove;
+                    let blackKingFirstMove = this.state.blackKingFirstMove;
+                    if (squares[i].name === "King" && this.state.sourceSelection === 60 && squares[i].player === 1) {
+                        whiteKingFirstMove = false;
+                    }
+                    if (squares[i].name === "King" && this.state.sourceSelection === 4 && squares[i].player === 2) {
+                        blackKingFirstMove = false;
+                    }
+
                     this.kingPosition(i);
                     this.changeTurn();
                     this.setState({
                         sourceSelection: -1,
                         squares: squares,
                         status: '',
-                        highLightMoves: []
+                        highLightMoves: [],
+                        whiteKingFirstMove: whiteKingFirstMove,
+                        blackKingFirstMove: blackKingFirstMove
                     });
                 } else if (this.state.highLightMoves.includes(i)) {
+                    console.log("here")
                     this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                     squares = this.movePiece(i, squares, this.state.sourceSelection);
                     this.kingPosition(i);
