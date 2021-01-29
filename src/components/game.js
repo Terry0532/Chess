@@ -42,8 +42,6 @@ export default class Game extends React.Component {
         let squares = this.state.squares;
 
         if (this.state.sourceSelection === -1) {
-            console.log(this.state.blackKingFirstMove)
-            console.log(this.state.whiteKingFirstMove)
             let highLightMoves = [];
             if (!squares[i] || squares[i].player !== this.state.player) {
                 this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
@@ -96,36 +94,36 @@ export default class Game extends React.Component {
                 //highlight possible moves
                 if (squares[i].name === "Pawn") {
                     const enpassant = this.enpassant(i);
-                    let possibleMoves = squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition);
-                    highLightMoves = this.checkMoves(squares, highLightMoves, possibleMoves, i);
+                    highLightMoves = this.checkMoves(squares, highLightMoves, squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition), i);
                 } else if (squares[i].name === "King") {
                     highLightMoves = highLightMoves.concat(squares[i].possibleMoves(i, squares));
-                    console.log(highLightMoves)
 
-                    //make sure player don't move king into opponent's piece's square
-                    let temp = [];
-                    if (
-                        (squares[i].player === 1 && this.state.allPossibleMovesBlack.some(element => highLightMoves.includes(element))) ||
-                        (squares[i].player === 2 && this.state.allPossibleMovesWhite.some(element => highLightMoves.includes(element)))
-                    ) {
-                        let allPossibleMoves = this.state.player === 1 ? this.state.allPossibleMovesBlack : this.state.allPossibleMovesWhite;
+                    //almost same as checkMoves()
+                    let tempHighLightMoves = [];
+                    let selectedPiece = i;
+                    if (this.state.turn === "white") {
                         for (let i = 0; i < highLightMoves.length; i++) {
-                            let counter = 0;
-                            for (let x = 0; x < allPossibleMoves.length; x++) {
-                                if (highLightMoves[i] !== allPossibleMoves[x]) {
-                                    counter++;
-                                }
-                            }
-                            if (counter === allPossibleMoves.length) {
-                                temp.push(highLightMoves[i]);
+                            let temp = squares.concat();
+                            temp[highLightMoves[i]] = temp[selectedPiece];
+                            temp[selectedPiece] = null;
+                            if (!this.allPossibleMovesBlack(temp).includes(highLightMoves[i])) {
+                                tempHighLightMoves.push(highLightMoves[i]);
                             }
                         }
-                        highLightMoves = temp;
+                    } else if (this.state.turn === "black") {
+                        for (let i = 0; i < highLightMoves.length; i++) {
+                            let temp = squares.concat();
+                            temp[highLightMoves[i]] = temp[selectedPiece];
+                            temp[selectedPiece] = null;
+                            if (!this.allPossibleMovesWhite(temp).includes(highLightMoves[i])) {
+                                tempHighLightMoves.push(highLightMoves[i]);
+                            }
+                        }
                     }
+                    highLightMoves = tempHighLightMoves;
 
                 } else {
-                    let possibleMoves = squares[i].possibleMoves(i, squares);
-                    highLightMoves = this.checkMoves(squares, highLightMoves, possibleMoves, i);
+                    highLightMoves = this.checkMoves(squares, highLightMoves, squares[i].possibleMoves(i, squares), i);
                 }
                 for (let index = 0; index < highLightMoves.length; index++) {
                     const element = highLightMoves[index];
@@ -267,7 +265,6 @@ export default class Game extends React.Component {
                         blackKingFirstMove: blackKingFirstMove
                     });
                 } else if (this.state.highLightMoves.includes(i)) {
-                    console.log("here")
                     this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                     squares = this.movePiece(i, squares, this.state.sourceSelection);
                     this.kingPosition(i);
