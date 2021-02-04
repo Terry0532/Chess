@@ -179,6 +179,7 @@ export default class Game extends React.Component {
 
                         this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
+                        squares[i] = squares[59];
                         this.changeTurn();
 
                         //update the possible moves in order to check if next player can castle or not
@@ -344,15 +345,13 @@ export default class Game extends React.Component {
         return squares;
     }
 
-    //remove captured piece border color and add it to fallen soldier list
+    //add captured piece to fallen soldier list
     addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers) {
         if (squares[i] !== null) {
             if (squares[i].player === 1) {
-                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
                 whiteFallenSoldiers.push(squares[i]);
             }
-            else {
-                squares[i].style = { ...squares[i].style, borderColor: "transparent" };
+            else if (squares[i].player === 2) {
                 blackFallenSoldiers.push(squares[i]);
             }
         }
