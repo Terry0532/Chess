@@ -265,6 +265,10 @@ export default class Game extends React.Component {
                         whiteKingFirstMove: whiteKingFirstMove,
                         blackKingFirstMove: blackKingFirstMove
                     });
+
+                    if (this.state.whiteFallenSoldiers.length >= 14) {
+                        console.log(this.state.squares);
+                    }
                 } else {
                     this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
                 }
@@ -296,7 +300,6 @@ export default class Game extends React.Component {
                     //update the possible moves in order to check if next player can castle or not
                     const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
                     const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
-
 
                     this.setState({
                         sourceSelection: -1,
