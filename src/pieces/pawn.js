@@ -12,7 +12,7 @@ export default class Pawn extends Piece {
 
     possibleMoves(src, squares, enpassant, lastTurnPawnPosition) {
         const highLightMoves = [];
-        if (this.player === 1 && (src - 7) > 0 && (src - 9) > 0) {
+        if (this.player === 1 && ((src - 7) > 0 || (src - 9) > 0)) {
             if (squares[src - 8] === null && squares[src - 16] === null && this.initialPositions[this.player].indexOf(src) !== -1) {
                 highLightMoves.push((src - 8));
                 highLightMoves.push((src - 16));
@@ -31,7 +31,7 @@ export default class Pawn extends Piece {
             if (enpassant && squares[src + 1] !== null && (src + 1) % 8 !== 0 && squares[src + 1].player === 2 && (src + 1) === lastTurnPawnPosition) {
                 highLightMoves.push((src - 7));
             }
-        } else if (this.player === 2 && (src + 7) < 64 && (src + 9) < 64) {
+        } else if (this.player === 2 && ((src + 7) < 64 || (src + 9) < 64)) {
             if (squares[src + 8] === null && squares[src + 16] === null && this.initialPositions[this.player].indexOf(src) !== -1) {
                 highLightMoves.push((src + 8));
                 highLightMoves.push((src + 16));

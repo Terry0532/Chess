@@ -4,6 +4,10 @@ import '../index.css';
 import Board from './board.js';
 import FallenSoldierBlock from './fallensoldiers';
 import initialiseChessBoard from '../helpers/initialiseChessBoard';
+import Queen from '../pieces/queen';
+import Knight from '../pieces/knight';
+import Bishop from '../pieces/bishop';
+import Rook from '../pieces/rook';
 
 export default class Game extends React.Component {
     constructor() {
@@ -34,7 +38,10 @@ export default class Game extends React.Component {
             blackRookFirstMoveRight: true,
 
             whiteKingPosition: 60,
-            blackKingPosition: 4
+            blackKingPosition: 4,
+
+            tempSquares: [],
+            convertPawnPosition: undefined
         }
     }
 
@@ -70,7 +77,7 @@ export default class Game extends React.Component {
                         ) {
                             highLightMoves.push(62);
                         }
-                    } else if (this.state.blackKingFirstMove) {
+                    } else if (this.state.turn === "black" && this.state.blackKingFirstMove) {
                         if (
                             this.state.blackRookFirstMoveLeft &&
                             squares[1] === null &&
@@ -117,6 +124,37 @@ export default class Game extends React.Component {
                     sourceSelection: i,
                     highLightMoves: highLightMoves
                 });
+            }
+        } else if (this.state.sourceSelection === -2) {
+
+            //to convert pawn that reach other side of the chess board
+            if ([10, 11, 12, 13, 50, 51, 52, 53].includes(i)) {
+                
+                //dehighlight
+                if (this.state.turn === "black") {
+                    squares[10].style = { ...squares[10].style, backgroundColor: "" };
+                    squares[11].style = { ...squares[11].style, backgroundColor: "" };
+                    squares[12].style = { ...squares[12].style, backgroundColor: "" };
+                    squares[13].style = { ...squares[13].style, backgroundColor: "" };
+                } else if (this.state.turn === "white") {
+                    squares[50].style = { ...squares[50].style, backgroundColor: "" };
+                    squares[51].style = { ...squares[51].style, backgroundColor: "" };
+                    squares[52].style = { ...squares[52].style, backgroundColor: "" };
+                    squares[53].style = { ...squares[53].style, backgroundColor: "" };
+                }
+
+                //convert pawn to player selected piece
+                const newSquares = this.state.tempSquares;
+                newSquares[this.state.convertPawnPosition] = squares[i];
+
+                this.setState({
+                    squares: newSquares,
+                    status: "",
+                    convertPawnPosition: undefined,
+                    sourceSelection: -1
+                })
+            } else {
+                this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
             }
         } else if (this.state.sourceSelection > -1) {
             //dehighlight selected piece
@@ -179,23 +217,57 @@ export default class Game extends React.Component {
 
                         this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
-                        squares[i] = squares[59];
                         this.changeTurn();
 
                         //update the possible moves in order to check if next player can castle or not
                         const allPossibleMovesWhite = this.allPossibleMovesWhite(squares);
                         const allPossibleMovesBlack = this.allPossibleMovesBlack(squares);
 
-                        this.setState({
-                            sourceSelection: -1,
-                            squares: squares,
-                            status: '',
-                            firstMove: firstMove,
-                            lastTurnPawnPosition: lastTurnPawnPosition,
-                            highLightMoves: [],
-                            allPossibleMovesWhite: allPossibleMovesWhite,
-                            allPossibleMovesBlack: allPossibleMovesBlack
-                        });
+                        //to convert pawn that reach other side of the chess board
+                        if ([0, 1, 2, 3, 4, 5, 6, 7, 56, 57, 58, 59, 60, 61, 62, 63].includes(i)) {
+                            const tempSquares = squares.concat();
+
+                            //give player choice to convert their pawn and highlight those choices
+                            if (this.state.turn === "white") {
+                                tempSquares[10] = new Knight(1);
+                                tempSquares[10].style = { ...tempSquares[10].style, backgroundColor: "RGB(111,143,114)" };
+                                tempSquares[11] = new Bishop(1);
+                                tempSquares[11].style = { ...tempSquares[11].style, backgroundColor: "RGB(111,143,114)" };
+                                tempSquares[12] = new Rook(1);
+                                tempSquares[12].style = { ...tempSquares[12].style, backgroundColor: "RGB(111,143,114)" };
+                                tempSquares[13] = new Queen(1);
+                                tempSquares[13].style = { ...tempSquares[13].style, backgroundColor: "RGB(111,143,114)" };
+                            } else if (this.state.turn === "black") {
+                                tempSquares[50] = new Knight(2);
+                                tempSquares[50].style = { ...tempSquares[50].style, backgroundColor: "RGB(111,143,114)" };
+                                tempSquares[51] = new Bishop(2);
+                                tempSquares[51].style = { ...tempSquares[51].style, backgroundColor: "RGB(111,143,114)" };
+                                tempSquares[52] = new Rook(2);
+                                tempSquares[52].style = { ...tempSquares[52].style, backgroundColor: "RGB(111,143,114)" };
+                                tempSquares[53] = new Queen(2);
+                                tempSquares[53].style = { ...tempSquares[53].style, backgroundColor: "RGB(111,143,114)" };
+                            }
+
+                            this.setState({
+                                sourceSelection: -2,
+                                tempSquares: squares,
+                                squares: tempSquares,
+                                status: "",
+                                highLightMoves: [],
+                                convertPawnPosition: i
+                            });
+                        } else {
+                            this.setState({
+                                sourceSelection: -1,
+                                squares: squares,
+                                status: "",
+                                firstMove: firstMove,
+                                lastTurnPawnPosition: lastTurnPawnPosition,
+                                highLightMoves: [],
+                                allPossibleMovesWhite: allPossibleMovesWhite,
+                                allPossibleMovesBlack: allPossibleMovesBlack
+                            });
+                        }
                     }
                 } else {
                     this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
