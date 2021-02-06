@@ -101,13 +101,13 @@ export default class Game extends React.Component {
                 //highlight possible moves
                 if (squares[i].name === "Pawn") {
                     const enpassant = this.enpassant(i);
-                    highLightMoves = this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition), i);
+                    highLightMoves = this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition), i, this.state.turn);
                 } else if (squares[i].name === "King") {
                     highLightMoves = highLightMoves.concat(squares[i].possibleMoves(i, squares));
-                    highLightMoves = this.checkMovesVer2(squares, highLightMoves, i);
+                    highLightMoves = this.checkMovesVer2(squares, highLightMoves, i, this.state.turn);
 
                 } else {
-                    highLightMoves = this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares), i);
+                    highLightMoves = this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares), i, this.state.turn);
                 }
                 for (let index = 0; index < highLightMoves.length; index++) {
                     const element = highLightMoves[index];
@@ -129,7 +129,7 @@ export default class Game extends React.Component {
 
             //to convert pawn that reach other side of the chess board
             if ([10, 11, 12, 13, 50, 51, 52, 53].includes(i)) {
-                
+
                 //dehighlight
                 if (this.state.turn === "black") {
                     squares[10].style = { ...squares[10].style, backgroundColor: "" };
@@ -248,6 +248,7 @@ export default class Game extends React.Component {
                                 tempSquares[53].style = { ...tempSquares[53].style, backgroundColor: "RGB(111,143,114)" };
                             }
 
+                            //update chess board with convert choices and save chess board without choices in this.state.tempSquares
                             this.setState({
                                 sourceSelection: -2,
                                 tempSquares: squares,
@@ -338,10 +339,6 @@ export default class Game extends React.Component {
                         whiteKingFirstMove: whiteKingFirstMove,
                         blackKingFirstMove: blackKingFirstMove
                     });
-
-                    if (this.state.whiteFallenSoldiers.length >= 14) {
-                        console.log(this.state.squares);
-                    }
                 } else {
                     this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
                 }
@@ -388,6 +385,36 @@ export default class Game extends React.Component {
                     });
                 } else {
                     this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
+                }
+            }
+
+            //stalemate or checkmate
+            console.log(i)
+            console.log(squares[i].possibleMoves(i, squares).includes(this.state.blackKingPosition))
+            let temp = [];
+            let turn = this.state.turn === "white" ? "black" : "white";
+            let player = this.state.turn === "white" ? 2 : 1;
+            for (let i = 0; i < squares.length; i++) {
+                if (squares[i] !== null) {
+                    if (squares[i].player === player) {
+                        if (squares[i].name === "Pawn") {
+                            const enpassant = this.enpassant(i);
+                            temp = temp.concat(this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition), i, turn))
+                        } else if (squares[i].name === "King") {
+                            temp = temp.concat(this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares), i, turn));
+                        } else {
+                            temp = temp.concat(this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares), i, turn));
+                        }
+                    }
+                }
+            }
+            if (squares[i].name === "Pawn") {
+                if (temp.length === 0 && !squares[i].possibleCaptureMoves(i, squares).includes(this.state.blackKingPosition)) {
+                    console.log("stalemate");
+                }
+            } else {
+                if (temp.length === 0 && !squares[i].possibleMoves(i, squares).includes(this.state.blackKingPosition)) {
+                    console.log("stalemate");
                 }
             }
         }
@@ -533,7 +560,7 @@ export default class Game extends React.Component {
     }
 
     //to check if selected piece can move or not, e.g., if they move seleced piece and it will end up in checkmate
-    checkMovesVer2(squares, highLightMoves, i) {
+    checkMovesVer2(squares, highLightMoves, i, turn) {
         const selectedPiece = i;
         let king = false;
         if (squares[selectedPiece].name === "King") {
@@ -545,21 +572,21 @@ export default class Game extends React.Component {
             temp[highLightMoves[i]] = temp[selectedPiece];
             temp[selectedPiece] = null;
             if (!king) {
-                if (this.state.turn === "white") {
+                if (turn === "white") {
                     if (!this.allPossibleMovesBlack(temp).includes(this.state.whiteKingPosition)) {
                         newList.push(highLightMoves[i]);
                     }
-                } else if (this.state.turn === "black") {
+                } else if (turn === "black") {
                     if (!this.allPossibleMovesWhite(temp).includes(this.state.blackKingPosition)) {
                         newList.push(highLightMoves[i]);
                     }
                 }
             } else if (king) {
-                if (this.state.turn === "white") {
+                if (turn === "white") {
                     if (!this.allPossibleMovesBlack(temp).includes(highLightMoves[i])) {
                         newList.push(highLightMoves[i]);
                     }
-                } else if (this.state.turn === "black") {
+                } else if (turn === "black") {
                     if (!this.allPossibleMovesWhite(temp).includes(highLightMoves[i])) {
                         newList.push(highLightMoves[i]);
                     }
