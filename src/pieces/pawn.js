@@ -56,7 +56,7 @@ export default class Pawn extends Piece {
 
     possibleCaptureMoves(src, squares) {
         const moves = [];
-        if (this.player === 1 && (src - 7) > 0 && (src - 9) > 0) {
+        if (this.player === 1 && (src - 7) > -1 && (src - 9) > -1) {
             if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src - 9] === null) {
                 moves.push((src - 9));
             } else if (src % 8 !== 0 && (src + 1) % 8 !== 0 && squares[src - 9].player === 2) {

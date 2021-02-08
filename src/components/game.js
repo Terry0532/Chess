@@ -229,7 +229,7 @@ export default class Game extends React.Component {
                         }
                         //record current pawn position for next turn to check en passant rule
                         let lastTurnPawnPosition = i;
-                        
+
                         this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
                         this.changeTurn();
@@ -390,16 +390,15 @@ export default class Game extends React.Component {
                     this.wrongMove(squares, "Wrong selection. Choose valid source and destination again.")
                 }
             }
-            //stalemate
+            //to record next player's possible moves
             let temp = [];
-            let turn = this.state.turn === "white" ? "black" : "white";
-            let player = this.state.turn === "white" ? 2 : 1;
+            const turn = this.state.turn === "white" ? "black" : "white";
+            const player = this.state.turn === "white" ? 2 : 1;
             for (let i = 0; i < squares.length; i++) {
                 if (squares[i] !== null) {
                     if (squares[i].player === player) {
                         if (squares[i].name === "Pawn") {
-                            const enpassant = this.enpassant(i);
-                            temp = temp.concat(this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares, enpassant, this.state.lastTurnPawnPosition), i, turn))
+                            temp = temp.concat(this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares), i, turn))
                         } else if (squares[i].name === "King") {
                             temp = temp.concat(this.checkMovesVer2(squares, squares[i].possibleMoves(i, squares), i, turn));
                         } else {
@@ -408,27 +407,27 @@ export default class Game extends React.Component {
                     }
                 }
             }
-            if (squares[i] !== null && squares[i].name === "Pawn") {
-                if (temp.length === 0 && !squares[i].possibleCaptureMoves(i, squares).includes(this.state.blackKingPosition)) {
-                    console.log("stalemate");
+            const kingPosition = turn === "white" ? this.state.whiteKingPosition : this.state.blackKingPosition;
+            //if next play doesn't have any possible moves then winner or stalemate
+            if (temp.length === 0) {
+                if (!squares[i].possibleMoves(i, squares).includes(kingPosition)) {
                     this.setState({
                         disabled: true,
                         status: "Stalemate Draw",
                         hideButton: ""
                     });
-                }
-            } else {
-                if (temp.length === 0 && !squares[i].possibleMoves(i, squares).includes(this.state.blackKingPosition)) {
-                    console.log("stalemate");
+                } else {
+                    const status = turn === "white" ? "Black Won" : "White Won";
                     this.setState({
                         disabled: true,
-                        status: "Stalemate Draw",
+                        status: status,
                         hideButton: ""
                     });
                 }
             }
         }
     }
+
     //to determine if its possible to do en passant capture
     enpassant(selectedPawnPosition) {
         let enpassant = false;
@@ -439,6 +438,7 @@ export default class Game extends React.Component {
         }
         return enpassant;
     }
+
     //dehighlight possible moves
     dehighlight(squares) {
         for (let index = 0; index < this.state.highLightMoves.length; index++) {
@@ -451,6 +451,7 @@ export default class Game extends React.Component {
         }
         return squares;
     }
+
     //add captured piece to fallen soldier list
     addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers) {
         if (squares[i] !== null) {
@@ -466,12 +467,14 @@ export default class Game extends React.Component {
             blackFallenSoldiers: blackFallenSoldiers
         })
     }
+
     //move player selected piece to target position
     movePiece(i, squares, sourceSelection) {
         squares[i] = squares[sourceSelection];
         squares[sourceSelection] = null;
         return squares;
     }
+
     changeTurn() {
         let player = this.state.player === 1 ? 2 : 1;
         let turn = this.state.turn === 'white' ? 'black' : 'white';
@@ -480,6 +483,7 @@ export default class Game extends React.Component {
             turn: turn
         })
     }
+
     //display message, and reset chess board
     wrongMove(squares, status) {
         this.setState({
@@ -489,6 +493,7 @@ export default class Game extends React.Component {
             squares: squares
         });
     }
+
     //give it the current chess board and return the possible moves
     allPossibleMovesWhite(squares) {
         const allPossibleMovesWhite = [];
@@ -546,6 +551,7 @@ export default class Game extends React.Component {
         }
         return temp;
     }
+
     //record king position
     kingPosition(i) {
         let whiteKingPosition = this.state.whiteKingPosition;
@@ -560,6 +566,7 @@ export default class Game extends React.Component {
             blackKingPosition: blackKingPosition
         })
     }
+    
     //to check if selected piece can move or not, e.g., if they move seleced piece and it will end up in checkmate
     checkMovesVer2(squares, highLightMoves, i, turn) {
         const selectedPiece = i;
