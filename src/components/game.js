@@ -20,8 +20,10 @@ export default class Game extends React.Component {
             sourceSelection: -1,
             status: '',
             turn: 'white',
+            white: 16,
+            black: 16,
             lastTurnPawnPosition: undefined,
-            //true === last turn enemy's pawn moved for the first time and it moved 2 squares forward. for en pasaant
+            //firstMove true === last turn enemy's pawn moved for the first time and it moved 2 squares forward. for en pasaant
             firstMove: undefined,
             highLightMoves: [],
             //for castle
@@ -47,6 +49,8 @@ export default class Game extends React.Component {
 
     handleClick(i) {
         let squares = this.state.squares;
+        let white = this.state.white;
+        let black = this.state.black;
         if (i.cancelable) {
             //reset game
             this.setState({
@@ -57,6 +61,8 @@ export default class Game extends React.Component {
                 sourceSelection: -1,
                 status: '',
                 turn: 'white',
+                white: 16,
+                black: 16,
                 lastTurnPawnPosition: undefined,
                 firstMove: undefined,
                 highLightMoves: [],
@@ -186,18 +192,17 @@ export default class Game extends React.Component {
             if (squares[this.state.sourceSelection].name === "Pawn") {
                 squares = this.dehighlight(squares);
                 const enpassant = this.enpassant(this.state.sourceSelection);
-
                 if (this.state.highLightMoves.includes(i)) {
                     //if en passant is available and player decided to use it, else proceed without it
                     if (enpassant && squares[i] == null && (this.state.lastTurnPawnPosition - 8 === i || this.state.lastTurnPawnPosition + 8 === i)) {
-                        //remove captured piece border color and add it to fallen soldier list
+                        //add captured piece to fallen soldier list
                         if (squares[this.state.lastTurnPawnPosition].player === 1) {
-                            squares[this.state.lastTurnPawnPosition].style = { ...squares[this.state.lastTurnPawnPosition].style, borderColor: "transparent" };
                             whiteFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
+                            white = white - 1;
                         }
                         else {
-                            squares[this.state.lastTurnPawnPosition].style = { ...squares[this.state.lastTurnPawnPosition].style, borderColor: "transparent" };
                             blackFallenSoldiers.push(squares[this.state.lastTurnPawnPosition]);
+                            black = black - 1;
                         }
                         //move player selected piece to target position
                         squares[i] = squares[this.state.sourceSelection];
@@ -229,7 +234,14 @@ export default class Game extends React.Component {
                         }
                         //record current pawn position for next turn to check en passant rule
                         let lastTurnPawnPosition = i;
-
+                        //update number of pieces
+                        if (squares[i] !== null) {
+                            if (this.state.turn === "white") {
+                                black = black - 1;
+                            } else {
+                                white = white - 1;
+                            }
+                        }
                         this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                         squares = this.movePiece(i, squares, this.state.sourceSelection);
                         this.changeTurn();
@@ -324,6 +336,14 @@ export default class Game extends React.Component {
                         blackKingFirstMove: blackKingFirstMove
                     });
                 } else if (this.state.highLightMoves.includes(i)) {
+                    //update number of pieces
+                    if (squares[i] !== null) {
+                        if (this.state.turn === "white") {
+                            black = black - 1;
+                        } else {
+                            white = white - 1;
+                        }
+                    }
                     this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                     squares = this.movePiece(i, squares, this.state.sourceSelection);
                     this.kingPosition(i);
@@ -351,6 +371,14 @@ export default class Game extends React.Component {
             } else {
                 squares = this.dehighlight(squares);
                 if (this.state.highLightMoves.includes(i)) {
+                    //update number of pieces
+                    if (squares[i] !== null) {
+                        if (this.state.turn === "white") {
+                            black = black - 1;
+                        } else {
+                            white = white - 1;
+                        }
+                    }
                     this.addToFallenSoldierList(i, squares, whiteFallenSoldiers, blackFallenSoldiers);
                     squares = this.movePiece(i, squares, this.state.sourceSelection);
                     this.changeTurn();
@@ -425,6 +453,69 @@ export default class Game extends React.Component {
                     });
                 }
             }
+            //other ways to draw
+            if (black < 3 && white < 3) {
+                let temp = undefined;
+                let temp2 = false;
+                for (let i = 0; i < squares.length; i++) {
+                    if (squares[i] !== null) {
+                        if (squares[i].name === "Bishop") {
+                            if ([1, 3, 5, 7, 8, 10, 12, 14, 17, 19, 21, 23, 24, 26, 28, 30, 33, 35, 37, 39, 40, 42, 44, 46, 49, 51, 53, 55, 56, 58, 60, 62].includes(i)) {
+                                if (squares[i].player === 1) {
+                                    temp = true;
+                                } else {
+                                    temp2 = true;
+                                }
+                            } else {
+                                if (squares[i].player === 1) {
+                                    temp = false;
+                                } else {
+                                    temp2 = false;
+                                }
+                            }
+                        }
+                    }
+                }
+                //king and bishop versus king and bishop with the bishops on the same color
+                if (temp === temp2) {
+                    this.setState({
+                        disabled: true,
+                        status: "Draw",
+                        hideButton: ""
+                    });
+                }
+                //king and bishop versus king, king and knight versus king draw
+                if ((black === 2 && white === 1) || (black === 1 && white === 2)) {
+                    let temp = undefined;
+                    for (let i = 0; i < squares.length; i++) {
+                        if (squares[i] !== null) {
+                            if (squares[i].name === "Bishop" || squares[i].name === "Knight") {
+                                temp = true;
+                            }
+                        }
+                    }
+                    if (temp) {
+                        this.setState({
+                            disabled: true,
+                            status: "Draw",
+                            hideButton: ""
+                        });
+                    }
+                }
+                //king versus king draw
+                if (black === 1 && white === 1) {
+                    this.setState({
+                        disabled: true,
+                        status: "Draw",
+                        hideButton: ""
+                    });
+                }
+            }
+            //update how many pieces left
+            this.setState({
+                white: white,
+                black: black
+            })
         }
     }
 
@@ -566,7 +657,7 @@ export default class Game extends React.Component {
             blackKingPosition: blackKingPosition
         })
     }
-    
+
     //to check if selected piece can move or not, e.g., if they move seleced piece and it will end up in checkmate
     checkMovesVer2(squares, highLightMoves, i, turn) {
         const selectedPiece = i;

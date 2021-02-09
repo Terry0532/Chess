@@ -34,12 +34,17 @@ export default function initialiseChessBoard() {
     squares[60] = new King(1);
 
     // squares[20] = new King(1);
+    // squares[21] = new Pawn(2);
     // squares[11] = new Pawn(1);
     // squares[2] = new King(2);
+    // squares[10] = new Pawn(1);
     // squares[54] = new Rook(2);
     // squares[61] = new Rook(2);
-    // squares[26] = new Pawn(2);
     // squares[35] = new Queen(2);
+    // squares[63] = new Bishop(1);
+    // squares[46] = new Bishop(2);
+    // squares[1] = new Knight(2);
+    // squares[50] = new Knight(1);
 
     return squares;
 }
